@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <HEMesh/ForwardDecl.h>
+#include "ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E, typename P>
@@ -124,4 +124,4 @@ class THalfEdge {
 };
 }  // namespace My
 
-#include <HEMesh/THalfEdge.inl>
+#include "THalfEdge.inl"

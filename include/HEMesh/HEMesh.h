@@ -4,20 +4,22 @@
 
 #pragma once
 
-#include <HEMesh/HEMesh_ptr.h>
-#include <HEMesh/TEdge.h>
-#include <HEMesh/THalfEdge.h>
-#include <HEMesh/TPolygon.h>
-#include <HEMesh/TVertex.h>
-#include <HEMesh/random_set.h>
-#include <HEMesh/vec_pool.h>
-#include <assert.h>
+#include "THalfEdge.h"
+#include "TVertex.h"
+#include "TEdge.h"
+#include "TPolygon.h"
 
-#include <algorithm>
-#include <iterator>
+#include "random_set.h"
+#include "vec_pool.h"
+#include "HEMesh_ptr.h"
+
 #include <set>
 #include <string>
+#include <algorithm>
+#include <iterator>
 #include <unordered_map>
+
+#include <cassert>
 
 namespace My {
 template <typename E, typename P>
@@ -252,4 +254,4 @@ class HEMesh : private _enable_HEMesh_t<_V> {
 };
 }  // namespace My
 
-#include <HEMesh/HEMesh.inl>
+#include "HEMesh.inl"

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <HEMesh/ForwardDecl.h>
+#include "ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E = EmptyEP_E<V>,
@@ -99,4 +99,4 @@ class TVertex {
 };
 }  // namespace My
 
-#include <HEMesh/TVertex.inl>
+#include "TVertex.inl"

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <HEMesh/ForwardDecl.h>
+#include "ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E, typename P>
@@ -50,4 +50,4 @@ class TPolygon {
 
 }  // namespace My
 
-#include <HEMesh/TPolygon.inl>
+#include "TPolygon.inl"

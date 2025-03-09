@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <HEMesh/ForwardDecl.h>
+#include "ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E, typename P = EmptyP<V, E>>
@@ -53,4 +53,4 @@ class TEdge {
 };
 }  // namespace My
 
-#include <HEMesh/TEdge.inl>
+#include "TEdge.inl"

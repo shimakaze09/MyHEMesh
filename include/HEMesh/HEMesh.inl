@@ -259,7 +259,7 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
       for (auto idx : polygon)
         polygonStr += to_string(idx) + ", ";
       printf(
-          "WARNNING::HEMesh::Init\n"
+          "WARNING::HEMesh::Init\n"
           "\t"
           "AddPolygon fail (%s)\n",
           polygonStr.c_str());
