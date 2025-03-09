@@ -54,7 +54,7 @@ class _enable_HEMesh {
 };
 
 template <typename V>
-using _enable_HEMesh_t = typename _enable_HEMesh<V>::type<>;
+using _enable_HEMesh_t = typename _enable_HEMesh<V>::template type<>;
 
 // nullptr Polygon is a boundary
 template <typename _V = AllEmpty>

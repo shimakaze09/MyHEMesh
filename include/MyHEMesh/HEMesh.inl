@@ -233,7 +233,7 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
     New<V>();
 
   for (auto polygon : polygons) {
-    vector<HE*> heLoop;
+    std::vector<HE*> heLoop;
     for (size_t i = 0; i < polygon.size(); i++) {
       size_t next = (i + 1) % polygon.size();
       if (polygon[i] == polygon[next]) {
@@ -254,9 +254,9 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
     auto p = AddPolygon(heLoop);
 
     if (p == nullptr) {
-      string polygonStr;
+      std::string polygonStr;
       for (auto idx : polygon)
-        polygonStr += to_string(idx) + ", ";
+        polygonStr += std::to_string(idx) + ", ";
       printf(
           "WARNNING::HEMesh::Init\n"
           "\t"
@@ -274,7 +274,7 @@ bool HEMesh<V>::Init(const std::vector<size_t>& polygons, size_t sides) {
     printf(
         "ERROR::HEMesh::Init:\n"
         "\t"
-        "polygons.size() isn't an integer multiple of sides\n")
+        "polygons.size() isn't an integer multiple of sides\n");
   }
   std::vector<std::vector<size_t>> arrangedPolygons;
   for (size_t i = 0; i < polygons.size(); i += sides) {

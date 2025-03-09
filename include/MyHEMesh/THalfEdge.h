@@ -72,6 +72,10 @@ class THalfEdge {
 
   static HE* const FindFreeIncident(HE* begin, HE* end);
 
+  static const HE* const FindFreeIncident(const HE* begin, const HE* end) {
+    return FindFreeIncident(const_cast<HE*>(begin), const_cast<HE*>(end));
+  }
+
   static bool MakeAdjacent(HE* inHE, HE* outHE);
 
   // [begin, end), if begin == end, return a loop
@@ -110,7 +114,6 @@ class THalfEdge {
 
   const std::vector<const HE*> RotateNextTo(const HE* end) const {
     return RotateNextBetween(this, end);
-    ;
   }
 
   // RotateNextBetween(this, this), a loop from this to this

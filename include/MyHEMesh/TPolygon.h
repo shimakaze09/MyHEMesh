@@ -30,8 +30,21 @@ class TPolygon {
 
   const std::vector<HE*> BoundaryHEs() { return HalfEdge()->NextLoop(); }
 
+  const std::vector<const HE*> BoundaryHEs() const {
+    return Const(const_cast<TPolygon*>(this)->BoundaryHEs());
+  }
+
   const std::vector<E*> BoundaryEdges();
+
+  const std::vector<const E*> BoundaryEdges() const {
+    return Const(const_cast<TPolygon*>(this)->BoundaryEdges());
+  }
+
   const std::vector<V*> BoundaryVertice();
+
+  const std::vector<const V*> BoundaryVertice() const {
+    return Const(const_cast<TPolygon*>(this)->BoundaryVertice());
+  }
 
  private:
   HE* halfEdge = nullptr;
