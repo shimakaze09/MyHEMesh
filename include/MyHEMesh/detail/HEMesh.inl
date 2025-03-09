@@ -707,7 +707,7 @@ bool HEMesh<V>::FlipEdge(E* e) {
 
 template <typename V>
 template <typename... Args>
-typename HEMesh<V>::V* const HEMesh<V>::SpiltEdge(E* e, Args&&... args) {
+typename HEMesh<V>::V* const HEMesh<V>::SplitEdge(E* e, Args&&... args) {
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
 

@@ -145,7 +145,7 @@ int main() {
   // test spilt edge
   {
     cout << "----------------------" << endl
-         << "    test SpiltEdge    " << endl
+         << "    test SplitEdge        " << endl
          << "----------------------" << endl;
 
     auto mesh = make_shared<HEMesh<V>>();
@@ -171,8 +171,8 @@ int main() {
     mesh->AddPolygon({he01, he12, he20}, "P0");
     mesh->AddPolygon({he02, he23, he30}, "P1");
 
-    auto v4 = mesh->SpiltEdge(e02, "v4");
-    auto v5 = mesh->SpiltEdge(e01, "v5");
+    auto v4 = mesh->SplitEdge(e02, "v4");
+    auto v5 = mesh->SplitEdge(e01, "v5");
 
     Print(mesh);
   }
@@ -240,10 +240,10 @@ int main() {
     mesh->AddPolygon({he01, he12, he20}, "P0");
     mesh->AddPolygon({he02, he23, he30}, "P1");
 
-    auto v4 = mesh->SpiltEdge(e02);
+    auto v4 = mesh->SplitEdge(e02);
     v4->name = "v4";
 
-    auto v5 = mesh->SpiltEdge(v4->EdgeWith(v3));
+    auto v5 = mesh->SplitEdge(v4->EdgeWith(v3));
     v5->name = "v5";
 
     Print(mesh);
