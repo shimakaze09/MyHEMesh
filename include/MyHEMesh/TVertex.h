@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ForwardDecl.h"
+#include "detail/ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E = EmptyEP_E<V>,
@@ -105,4 +105,4 @@ class TVertex {
 };
 }  // namespace My
 
-#include "TVertex.inl"
+#include "detail/TVertex.inl"

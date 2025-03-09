@@ -9,8 +9,8 @@
 #include "TPolygon.h"
 #include "TVertex.h"
 
-#include "pool.h"
-#include "random_set.h"
+#include "detail/pool.h"
+#include "detail/random_set.h"
 
 #include <algorithm>
 #include <iterator>
@@ -234,4 +234,4 @@ class HEMesh : private _enable_HEMesh_t<_V> {
 };
 }  // namespace My
 
-#include "HEMesh.inl"
+#include "detail/HEMesh.inl"

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ForwardDecl.h"
+#include "detail/ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E, typename P>
@@ -51,4 +51,4 @@ class TPolygon {
 };
 }  // namespace My
 
-#include "TPolygon.inl"
+#include "detail/TPolygon.inl"

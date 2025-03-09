@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ForwardDecl.h"
+#include "detail/ForwardDecl.h"
 
 namespace My {
 template <typename V, typename E, typename P>
@@ -133,4 +133,4 @@ class THalfEdge {
 };
 }  // namespace My
 
-#include "THalfEdge.inl"
+#include "detail/THalfEdge.inl"
