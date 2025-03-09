@@ -57,6 +57,12 @@ class TVertex {
     return Const(const_cast<TVertex*>(this)->AdjVertices());
   }
 
+  const std::set<P*> AdjPolygons();
+
+  const std::set<const P*> AdjPolygons() const {
+    return Const(const_cast<TVertex*>(this)->AdjPolygons());
+  }
+
   HE* const FindFreeIncident();
 
   HE* const FindFreeIncident() const {
