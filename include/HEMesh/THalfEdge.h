@@ -24,7 +24,7 @@ class THalfEdge {
 
   P* const Polygon() { return polygon; }
 
-  V* const End() { return Pair()->Origin(); }
+  V* const End() { return Next()->Origin(); }
 
   HE* const Pre();
 
