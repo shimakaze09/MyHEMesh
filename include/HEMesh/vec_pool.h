@@ -14,8 +14,10 @@ class vec_pool {
   vec_pool() : buffer((T*)malloc(32 * sizeof(T))), capacity(32), size(0) {}
 
   ~vec_pool() {
+    std::unordered_set<size_t> emptyIndicesSet(emptyIndices.begin(),
+                                               emptyIndices.end());
     for (size_t i = 0; i < size; i++) {
-      if (emptyIndices.find(i) == emptyIndices.end())
+      if (emptyIndicesSet.find(i) == emptyIndicesSet.end())
         buffer[i].~T();
     }
     if (buffer)
@@ -36,9 +38,8 @@ class vec_pool {
       }
       idx = size++;
     } else {
-      auto iter = emptyIndices.begin();
-      idx = *iter;
-      emptyIndices.erase(idx);
+      idx = emptyIndices.back();
+      emptyIndices.pop_back();
     }
 
     new (buffer + idx) T(std::forward<Args>(args)...);
@@ -48,7 +49,7 @@ class vec_pool {
   void recycle(size_t idx) {
     assert(idx < size);
     buffer[idx].~T();
-    emptyIndices.insert(idx);
+    emptyIndices.push_back(idx);
   }
 
   void reserve(size_t n) {
@@ -61,15 +62,18 @@ class vec_pool {
   }
 
   void clear() {
+    std::unordered_set<size_t> emptyIndicesSet(emptyIndices.begin(),
+                                               emptyIndices.end());
     for (size_t i = 0; i < size; i++) {
-      if (emptyIndices.find(i) == emptyIndices.end())
+      if (emptyIndicesSet.find(i) == emptyIndicesSet.end())
         buffer[i].~T();
     }
+    size = 0;
     emptyIndices.clear();
   }
 
   T& at(size_t n) {
-    assert(n < capacity && emptyIndices.find(n) == emptyIndices.end());
+    assert(n < capacity);
     return buffer[n];
   }
 
@@ -83,6 +87,6 @@ class vec_pool {
   T* buffer;
   size_t size;
   size_t capacity;
-  std::unordered_set<size_t> emptyIndices;
+  std::vector<size_t> emptyIndices;
 };
 }  // namespace My
