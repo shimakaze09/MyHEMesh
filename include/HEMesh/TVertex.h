@@ -14,15 +14,6 @@ class TVertex {
  private:
   // internal use
   using HE = THalfEdge<V, E, P>;
-  template <typename T>
-  using ptr = HEMesh_ptr<T, HEMesh<V>>;
-  template <typename T>
-  using ptrc = ptr<const T>;
-
- public:
-  // external use
-  using Ptr = ptr<V>;
-  using PtrC = ptrc<V>;
 
  private:
   // for _enable_HEMesh
@@ -32,73 +23,66 @@ class TVertex {
   using _P = P;
 
  public:
-  const ptr<HE> HalfEdge() { return ptr<HE>(halfEdge, mesh); }
+  HE* const HalfEdge() { return halfEdge; }
 
-  const ptrc<HE> HalfEdge() const {
+  const HE* const HalfEdge() const {
     return const_cast<TVertex*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(ptr<HE> he) {
-    assert(he.mesh == nullptr || mesh == he.mesh);
-    halfEdge = he.idx;
-  }
+  void SetHalfEdge(HE* he) { halfEdge = he; }
 
-  bool IsIsolated() const { return halfEdge == -1; }
+  bool IsIsolated() const { return !halfEdge; }
 
   bool IsBoundary() const;
 
   size_t Degree() const { return OutHEs().size(); }
 
-  const std::vector<ptr<HE>> OutHEs() {
-    return IsIsolated() ? std::vector<ptr<HE>>() : HalfEdge()->RotateNextLoop();
+  const std::vector<HE*> OutHEs() {
+    return IsIsolated() ? std::vector<HE*>() : HalfEdge()->RotateNextLoop();
   }
 
-  const std::vector<ptrc<HE>> OutHEs() const {
+  const std::vector<const HE*> OutHEs() const {
     return Const(const_cast<TVertex*>(this)->OutHEs());
   }
 
-  const std::vector<ptr<E>> AdjEdges();
+  const std::vector<E*> AdjEdges();
 
-  const std::vector<ptrc<HE>> AdjEdges() const {
+  const std::vector<const HE*> AdjEdges() const {
     return Const(const_cast<TVertex*>(this)->AdjEdges());
   }
 
-  const std::vector<ptr<V>> AdjVertices();
+  const std::vector<V*> AdjVertices();
 
-  const std::vector<ptrc<V>> AdjVertices() const {
-    return Const<std::vector, V>(const_cast<TVertex*>(this)->AdjVertices());
+  const std::vector<const V*> AdjVertices() const {
+    return Const(const_cast<TVertex*>(this)->AdjVertices());
   }
 
-  const ptr<HE> FindFreeIncident();
+  HE* const FindFreeIncident();
 
-  const ptrc<HE> FindFreeIncident() const {
+  HE* const FindFreeIncident() const {
     return const_cast<TVertex*>(this)->FindFreeOutHE();
   }
 
-  const ptr<HE> HalfEdgeTo(ptr<V> end);
+  HE* const HalfEdgeTo(V* end);
 
-  static const ptr<HE> HalfEdgeAlong(ptr<V> origin, ptr<V> end) {
+  static HE* const HalfEdgeAlong(V* origin, V* end) {
     return origin->HalfEdgeTo(end);
   }
 
-  const ptr<E> EdgeWith(ptr<V> v);
+  E* const EdgeWith(V* v);
 
-  static const ptr<E> EdgeBetween(ptr<V> v0, ptr<V> v1) {
-    return v0->EdgeWith(v1);
+  static E* const EdgeBetween(V* v0, V* v1) { return v0->EdgeWith(v1); }
+
+  bool IsConnectedWith(const V* v) const {
+    return const_cast<TVertex*>(this)->EdgeWith(const_cast<V*>(v));
   }
 
-  bool IsConnectedWith(ptr<V> v) const {
-    return const_cast<TVertex*>(this)->EdgeWith(v);
-  }
-
-  static bool IsConnected(ptr<V> v0, ptr<V> v1) {
+  static bool IsConnected(const V* v0, const V* v1) {
     return v0->IsConnectedWith(v1);
   }
 
  private:
-  HEMesh<V>* mesh = nullptr;
-
-  int halfEdge = -1;
+  HE* halfEdge = nullptr;
 };
 }  // namespace My
 

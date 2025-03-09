@@ -62,12 +62,12 @@ class P : public TPolygon<V, E, P> {
   string pre;
 };
 
-ostream& operator<<(ostream& os, V::Ptr v) {
+ostream& operator<<(ostream& os, V* v) {
   os << v->name;
   return os;
 }
 
-ostream& operator<<(ostream& os, HEMesh<V>::ptrHE he) {
+ostream& operator<<(ostream& os, HEMesh<V>::HE* he) {
   os << he->Origin() << "->" << he->End();
   return os;
 }

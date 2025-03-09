@@ -6,7 +6,7 @@
 
 namespace My {
 template <typename V>
-const std::vector<size_t> HEMesh<V>::Indices(ptr<P> p) const {
+const std::vector<size_t> HEMesh<V>::Indices(P* p) const {
   std::vector<size_t> indices;
   for (auto v : p->BoundaryVertice())
     indices.push_back(Index(v));
@@ -15,8 +15,7 @@ const std::vector<size_t> HEMesh<V>::Indices(ptr<P> p) const {
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrE HEMesh<V>::AddEdge(ptr<V> v0, ptr<V> v1,
-                                                  Args&&... args) {
+typename HEMesh<V>::E* const HEMesh<V>::AddEdge(V* v0, V* v1, Args&&... args) {
   if (v0 == v1) {
     printf(
         "ERROR::HEMesh::AddEdge\n"
@@ -88,8 +87,8 @@ const typename HEMesh<V>::ptrE HEMesh<V>::AddEdge(ptr<V> v0, ptr<V> v1,
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrP HEMesh<V>::AddPolygon(
-    const std::vector<ptr<HE>> heLoop, Args&&... args) {
+typename HEMesh<V>::P* const HEMesh<V>::AddPolygon(
+    const std::vector<HE*> heLoop, Args&&... args) {
   if (heLoop.size() == 0) {
     printf(
         "ERROR::HEMesh::AddPolygon:\n"
@@ -140,7 +139,7 @@ const typename HEMesh<V>::ptrP HEMesh<V>::AddPolygon(
 }
 
 template <typename V>
-void HEMesh<V>::RemovePolygon(ptr<P> polygon) {
+void HEMesh<V>::RemovePolygon(P* polygon) {
   assert(polygon != nullptr);
   for (auto he : polygon->BoundaryHEs())
     he->SetPolygon(nullptr);
@@ -148,7 +147,7 @@ void HEMesh<V>::RemovePolygon(ptr<P> polygon) {
 }
 
 template <typename V>
-void HEMesh<V>::RemoveEdge(ptr<E> e) {
+void HEMesh<V>::RemoveEdge(E* e) {
   assert(e != nullptr);
   auto he0 = e->HalfEdge();
   auto he1 = he0->Pair();
@@ -185,7 +184,7 @@ void HEMesh<V>::RemoveEdge(ptr<E> e) {
 }
 
 template <typename V>
-void HEMesh<V>::RemoveVertex(ptr<V> v) {
+void HEMesh<V>::RemoveVertex(V* v) {
   for (auto e : v->AdjEdges())
     RemoveEdge(e);
   Delete<V>(v);
@@ -234,7 +233,7 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
     New<V>();
 
   for (auto polygon : polygons) {
-    vector<ptr<HE>> heLoop;
+    vector<HE*> heLoop;
     for (size_t i = 0; i < polygon.size(); i++) {
       size_t next = (i + 1) % polygon.size();
       if (polygon[i] == polygon[next]) {
@@ -259,7 +258,7 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
       for (auto idx : polygon)
         polygonStr += to_string(idx) + ", ";
       printf(
-          "WARNING::HEMesh::Init\n"
+          "WARNNING::HEMesh::Init\n"
           "\t"
           "AddPolygon fail (%s)\n",
           polygonStr.c_str());
@@ -341,13 +340,13 @@ bool HEMesh<V>::HaveIsolatedVertices() const {
 }
 
 template <typename V>
-const std::vector<std::vector<typename HEMesh<V>::ptrHE>>
+const std::vector<std::vector<typename HEMesh<V>::HE*>>
 HEMesh<V>::Boundaries() {
-  std::vector<std::vector<ptr<HE>>> boundaries;
-  std::set<ptr<HE>> found;
+  std::vector<std::vector<HE*>> boundaries;
+  std::set<HE*> found;
   for (auto he : halfEdges) {
     if (he->IsBoundary() && found.find(he) == found.end()) {
-      boundaries.push_back(std::vector<ptr<HE>>());
+      boundaries.push_back(std::vector<HE*>());
       auto cur = he;
       do {
         boundaries.back().push_back(cur);
@@ -365,9 +364,9 @@ bool HEMesh<V>::IsValid() const {
     if (!he->Next() || !he->Pair() || !he->Origin() || !he->Edge())
       return false;
   }
-  set<ptr<HE>> uncheckHEs(halfEdges.begin(), halfEdges.end());
-  ptr<HE> headHE;
-  ptr<HE> curHE;
+  std::set<HE*> uncheckHEs(halfEdges.begin(), halfEdges.end());
+  HE* headHE = nullptr;
+  HE* curHE = nullptr;
   while (!uncheckHEs.empty() || headHE != nullptr) {
     if (!headHE) {
       auto iter = uncheckHEs.begin();
@@ -424,13 +423,13 @@ bool HEMesh<V>::IsTriMesh() const {
 }
 
 template <typename V>
-const typename HEMesh<V>::ptrP HEMesh<V>::EraseVertex(ptr<V> v) {
+const typename HEMesh<V>::P* HEMesh<V>::EraseVertex(V* v) {
   if (v->IsBoundary()) {
     RemoveVertex(v);
     return nullptr;
   }
 
-  ptr<HE> he = v->HalfEdge();
+  HE* he = v->HalfEdge();
   while (he->Next()->End() == v) {
     he = he->RotateNext();
     if (he == v->HalfEdge()) {
@@ -446,8 +445,7 @@ const typename HEMesh<V>::ptrP HEMesh<V>::EraseVertex(ptr<V> v) {
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrV HEMesh<V>::AddEdgeVertex(ptr<E> e,
-                                                        Args&&... args) {
+typename HEMesh<V>::V* const HEMesh<V>::AddEdgeVertex(E* e, Args&&... args) {
   // prepare
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
@@ -484,7 +482,7 @@ const typename HEMesh<V>::ptrV HEMesh<V>::AddEdgeVertex(ptr<E> e,
   he02->SetEdge(e02);
   he02->SetPolygon(p01);
 
-  // he21->SetNext();
+  //he21->SetNext();
   he21->SetPair(he12);
   he21->SetOrigin(v2);
   he21->SetEdge(e12);
@@ -496,7 +494,7 @@ const typename HEMesh<V>::ptrV HEMesh<V>::AddEdgeVertex(ptr<E> e,
   he12->SetEdge(e12);
   he12->SetPolygon(p10);
 
-  // he20->SetNext();
+  //he20->SetNext();
   he20->SetPair(he02);
   he20->SetOrigin(v2);
   he20->SetEdge(e02);
@@ -550,9 +548,8 @@ const typename HEMesh<V>::ptrV HEMesh<V>::AddEdgeVertex(ptr<E> e,
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrE HEMesh<V>::ConnectVertex(ptr<HE> he0,
-                                                        ptr<HE> he1,
-                                                        Args&&... args) {
+typename HEMesh<V>::E* const HEMesh<V>::ConnectVertex(HE* he0, HE* he1,
+                                                      Args&&... args) {
   auto p = he0->Polygon();
   if (p != he1->Polygon()) {
     printf(
@@ -625,7 +622,7 @@ const typename HEMesh<V>::ptrE HEMesh<V>::ConnectVertex(ptr<HE> he0,
 }
 
 template <typename V>
-bool HEMesh<V>::FlipEdge(ptr<E> e) {
+bool HEMesh<V>::FlipEdge(E* e) {
   if (e->IsBoundary()) {
     printf(
         "ERROR::HEMesh::FlipEdge:\n"
@@ -687,7 +684,7 @@ bool HEMesh<V>::FlipEdge(ptr<E> e) {
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrV HEMesh<V>::SpiltEdge(ptr<E> e, Args&&... args) {
+typename HEMesh<V>::V* const HEMesh<V>::SpiltEdge(E* e, Args&&... args) {
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
 
@@ -715,14 +712,14 @@ const typename HEMesh<V>::ptrV HEMesh<V>::SpiltEdge(ptr<E> e, Args&&... args) {
     }
 
     /*
-     *     v1         v1
-     *    / |        / |
-     *   /  |       /  |
-     * v2   | ==> v2--v3
-     *   \  |       \  |
-     *    \ |        \ |
-     *     v0         v0
-     */
+			*     v1         v1
+			*    / |        / |
+			*   /  |       /  |
+			* v2   | ==> v2--v3
+			*   \  |       \  |
+			*    \ |        \ |
+			*     v0         v0
+			*/
 
     // prepare
     auto he12 = he01->Next();
@@ -784,14 +781,14 @@ const typename HEMesh<V>::ptrV HEMesh<V>::SpiltEdge(ptr<E> e, Args&&... args) {
   }
 
   /*
-   *     v1             v1
-   *    /||\           /||\
-   *   / || \         / || \
-   * v2  ||  v3 ==> v2--v4--v3
-   *   \ || /         \ || /
-   *    \||/           \||/
-   *     v0             v0
-   */
+		*     v1             v1
+		*    /||\           /||\
+		*   / || \         / || \
+		* v2  ||  v3 ==> v2--v4--v3
+		*   \ || /         \ || /
+		*    \||/           \||/
+		*     v0             v0
+		*/
 
   // prepare
   auto he12 = he01->Next();
@@ -857,8 +854,7 @@ const typename HEMesh<V>::ptrV HEMesh<V>::SpiltEdge(ptr<E> e, Args&&... args) {
 
 template <typename V>
 template <typename... Args>
-const typename HEMesh<V>::ptrV HEMesh<V>::CollapseEdge(ptr<E> e,
-                                                       Args&&... args) {
+typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
 
@@ -868,14 +864,14 @@ const typename HEMesh<V>::ptrV HEMesh<V>::CollapseEdge(ptr<E> e,
   auto p01 = he01->Polygon();
   auto p10 = he10->Polygon();
 
-  std::vector<ptr<V>> comVs;
+  std::vector<V*> comVs;
   auto v0AdjVs = v0->AdjVertices();
   auto v1AdjVs = v1->AdjVertices();
   sort(v0AdjVs.begin(), v0AdjVs.end());
   sort(v1AdjVs.begin(), v1AdjVs.end());
   std::set_intersection(
       v0AdjVs.begin(), v0AdjVs.end(), v1AdjVs.begin(), v1AdjVs.end(),
-      std::insert_iterator<std::vector<ptr<V>>>(comVs, comVs.begin()));
+      std::insert_iterator<std::vector<V*>>(comVs, comVs.begin()));
 
   size_t limit = 2;
   if (p01->Degree() > 3)
@@ -935,7 +931,7 @@ const typename HEMesh<V>::ptrV HEMesh<V>::CollapseEdge(ptr<E> e,
     Delete<HE>(he01Pre);
     if (!P::IsBoundary(p01))
       Delete<P>(p01);
-  } else {  // p01->Degree >= 4
+  } else {  //p01->Degree >= 4
     if (!P::IsBoundary(p01) && p01->HalfEdge() == he01)
       p01->SetHalfEdge(he01->Next());
     he01->Pre()->SetNext(he01->Next());
@@ -965,7 +961,7 @@ const typename HEMesh<V>::ptrV HEMesh<V>::CollapseEdge(ptr<E> e,
     Delete<HE>(he10Pre);
     if (!P::IsBoundary(p10))
       Delete<P>(p10);
-  } else {  // p10->Degree >= 4
+  } else {  //p10->Degree >= 4
     if (!P::IsBoundary(p10) && p10->HalfEdge() == he10)
       p10->SetHalfEdge(he10->Next());
     he10->Pre()->SetNext(he10->Next());

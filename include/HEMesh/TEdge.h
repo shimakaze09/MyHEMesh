@@ -12,27 +12,15 @@ class TEdge {
  private:
   // internal use
   using HE = THalfEdge<V, E, P>;
-  template <typename T>
-  using ptr = HEMesh_ptr<T, HEMesh<V>>;
-  template <typename T>
-  using ptrc = ptr<const T>;
 
  public:
-  // external use
-  using Ptr = ptr<E>;
-  using PtrC = ptrc<E>;
+  HE* const HalfEdge() { return halfEdge; }
 
- public:
-  const ptr<HE> HalfEdge() { return ptr<HE>(halfEdge, mesh); }
-
-  const ptrc<HE> HalfEdge() const {
+  const HE* const HalfEdge() const {
     return const_cast<TEdge*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(ptr<HE> he) {
-    assert(he.mesh == nullptr || mesh == he.mesh);
-    halfEdge = he.idx;
-  }
+  void SetHalfEdge(HE* he) { halfEdge = he; }
 
   bool IsBoundary() const {
     return HalfEdge()->IsBoundary() || HalfEdge()->Pair()->IsBoundary();
@@ -45,15 +33,12 @@ class TEdge {
   // clockwise
   // + [he.RotateNext, he.RotateNext.RotateNext, ..., he)
   // + [he.next, he.next.RotateNext, ..., he.pair)
-  const std::vector<ptr<HE>> OutHEs();
-  const std::set<ptr<V>> AdjVertices();
-  const std::vector<ptr<E>> AdjEdges();
+  const std::vector<HE*> OutHEs();
+  const std::set<V*> AdjVertices();
+  const std::vector<E*> AdjEdges();
 
  private:
-  friend class HEMesh<V>;
-  HEMesh<V>* mesh = nullptr;
-
-  int halfEdge = -1;
+  HE* halfEdge = nullptr;
 };
 }  // namespace My
 

@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 
 #include <set>
+#include <type_traits>
 #include <vector>
 
 namespace My {
@@ -38,6 +39,10 @@ class EmptyEP_P;
 
 class AllEmpty;
 
-template <typename T, typename HEMesh_t>
-class HEMesh_ptr;
+template <template <typename, typename...> class ContainerT, typename ElemT,
+          typename... Args>
+const ContainerT<const ElemT*> Const(
+    const ContainerT<ElemT*, Args...>& container) {
+  return ContainerT<const ElemT*>(container.begin(), container.end());
+}
 }  // namespace My
