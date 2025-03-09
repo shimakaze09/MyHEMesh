@@ -22,7 +22,7 @@ class TPolygon {
 
   void SetHalfEdge(HE* he) { halfEdge = he; }
 
-  static bool IsBoundary(P* p) { return p == nullptr; }
+  static bool IsBoundary(const P* p) { return p == nullptr; }
 
   size_t Degree() const {
     return static_cast<int>(const_cast<TPolygon*>(this)->BoundaryHEs().size());

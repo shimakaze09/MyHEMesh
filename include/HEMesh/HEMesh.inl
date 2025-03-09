@@ -863,6 +863,8 @@ typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
 
   auto p01 = he01->Polygon();
   auto p10 = he10->Polygon();
+  size_t p01D = he01->NextLoop().size();
+  size_t p10D = he10->NextLoop().size();
 
   std::vector<V*> comVs;
   auto v0AdjVs = v0->AdjVertices();
@@ -874,9 +876,9 @@ typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
       std::insert_iterator<std::vector<V*>>(comVs, comVs.begin()));
 
   size_t limit = 2;
-  if (p01->Degree() > 3)
+  if (p01D > 3)
     limit -= 1;
-  if (p10->Degree() > 3)
+  if (p10D > 3)
     limit -= 1;
   if (comVs.size() > limit) {
 #if !NDEBUG
@@ -900,14 +902,17 @@ typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
 
   // set v
   auto v = New<V>(std::forward<Args>(args)...);
-  v->SetHalfEdge(he01->Pre()->Pair());
+  if (he01->Pre()->Pair()->Polygon() != p10)
+    v->SetHalfEdge(he01->Pre()->Pair());
+  else
+    v->SetHalfEdge(he10->Pre()->Pair());
 
-  for (auto he : he01->RotateNext()->RotateNextTo(he01))
+  for (auto he : v0->OutHEs())
     he->SetOrigin(v);
-  for (auto he : he10->RotateNext()->RotateNextTo(he10))
+  for (auto he : v1->OutHEs())
     he->SetOrigin(v);
 
-  if (he01->NextLoop().size() == 3) {  // p01->Degree() == 3
+  if (p01D == 3) {  // p01->Degree() == 3
     auto he01Next = he01->Next();
     auto he01Pre = he01->Pre();
     auto he01NextPair = he01Next->Pair();
@@ -937,7 +942,7 @@ typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
     he01->Pre()->SetNext(he01->Next());
   }
 
-  if (he10->NextLoop().size() == 3) {  // p10->Degree() == 3
+  if (p10D == 3) {  // p10->Degree() == 3
     auto he10Next = he10->Next();
     auto he10Pre = he10->Pre();
     auto he10NextPair = he10Next->Pair();
