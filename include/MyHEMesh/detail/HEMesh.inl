@@ -4,7 +4,30 @@
 
 #pragma once
 
+#include <algorithm>
+#include <iterator>
+#include <set>
+#include <string>
+#include <unordered_map>
+
 namespace My {
+template <typename V>
+template <typename T, typename... Args>
+T* const HEMesh<V>::New(Args&&... args) {
+  T* elem = traits<T>::pool(this).request();
+  new (elem) T(std::forward<Args>(args)...);
+  traits<T>::set(this).insert(elem);
+  return elem;
+}
+
+// clear and erase
+template <typename V>
+template <typename T>
+void HEMesh<V>::Delete(T* elem) {
+  traits<T>::pool(this).recycle(elem);
+  traits<T>::set(this).erase(elem);
+}
+
 template <typename V>
 const std::vector<size_t> HEMesh<V>::Indices(P* p) const {
   std::vector<size_t> indices;

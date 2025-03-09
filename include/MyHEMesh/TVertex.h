@@ -8,18 +8,12 @@
 
 namespace My {
 template <typename V, typename E = EmptyEP_E<V>,
-          typename P = std::conditional<std::is_same<E, EmptyEP_E<V>>::value,
-                                        EmptyEP_P<V>, EmptyP<V, E>>::type>
+          typename P = std::conditional_t<std::is_same_v<E, EmptyEP_E<V>>,
+                                          EmptyEP_P<V>, EmptyP<V, E>>>
 class TVertex {
  private:
   // internal use
   using HE = THalfEdge<V, E, P>;
-
- private:
-  friend class _enable_HEMesh<V>;
-  friend class HEMesh<V>;
-  using _E = E;
-  using _P = P;
 
  public:
   HE* const HalfEdge() { return halfEdge; }
@@ -102,6 +96,11 @@ class TVertex {
 
  private:
   HE* halfEdge = nullptr;
+
+ private:
+  friend class HEMesh<V>;
+  using _E = E;
+  using _P = P;
 };
 }  // namespace My
 

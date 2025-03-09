@@ -1,4 +1,4 @@
-# HEMesh
+# MyHEMesh
 
 an elegant, high-performance, user-friendly halfedge data structure
 
@@ -13,7 +13,7 @@ an elegant, high-performance, user-friendly halfedge data structure
 ### default Vertex, Edge and Polygon class
 
 ```c++
-#include <HEMesh/HEMesh.h>
+#include <MyHEMesh/HEMesh.h>
 
 #include <vector>
 
@@ -27,7 +27,7 @@ int main() {
 ### custom Vertex, Edge and Polygon class
 
 ```c++
-#include <HEMesh/HEMesh.h>
+#include <MyHEMesh/HEMesh.h>
 
 #include <vector>
 
