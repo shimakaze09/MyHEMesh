@@ -4,19 +4,19 @@
 
 #pragma once
 
-#include "THalfEdge.h"
-#include "TVertex.h"
 #include "TEdge.h"
+#include "THalfEdge.h"
 #include "TPolygon.h"
+#include "TVertex.h"
 
+#include "HEMesh_ptr.h"
 #include "random_set.h"
 #include "vec_pool.h"
-#include "HEMesh_ptr.h"
 
-#include <set>
-#include <string>
 #include <algorithm>
 #include <iterator>
+#include <set>
+#include <string>
 #include <unordered_map>
 
 #include <cassert>
@@ -186,7 +186,8 @@ class HEMesh : private _enable_HEMesh_t<_V> {
   template <typename T, typename... Args>
   const ptr<T> New(Args&&... args) {
     auto idx = traits<T>::pool(this).request(std::forward<Args>(args)...);
-    auto p = ptr<T>(this, static_cast<int>(idx));
+    traits<T>::pool(this)[idx].mesh = this;
+    auto p = ptr<T>(static_cast<int>(idx), this);
     traits<T>::set(this).insert(p);
     return p;
   }
@@ -198,7 +199,7 @@ class HEMesh : private _enable_HEMesh_t<_V> {
     traits<T>::set(this).erase(elem);
   }
 
-  template <typename T, typename HEMesh_t>
+  template <typename, typename>
   friend class HEMesh_ptr;  // use Get
 
   template <typename T>

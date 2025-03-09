@@ -12,7 +12,9 @@ namespace My {
 template <typename T, typename HEMesh_t>
 class HEMesh_ptr {
  public:
-  HEMesh_ptr(HEMesh_t* mesh = nullptr, int idx = -1) : mesh(mesh), idx(idx) {}
+  HEMesh_ptr(int idx = -1, HEMesh_t* mesh = nullptr) : idx(idx), mesh(mesh) {}
+
+  HEMesh_ptr(std::nullptr_t) : HEMesh_ptr(-1, nullptr) {}
 
   T* operator->() const { return mesh->Get<std::remove_const_t<T>>(idx); }
 
@@ -28,6 +30,8 @@ class HEMesh_ptr {
     return idx < p.idx;
   }
 
+  bool operator<(std::nullptr_t) const { return false; }
+
   bool operator!=(const HEMesh_ptr& p) const {
     assert(mesh == p.mesh);
     return idx != p.idx;
@@ -36,21 +40,21 @@ class HEMesh_ptr {
   bool operator!=(std::nullptr_t) const { return idx != -1; }
 
   HEMesh_ptr& operator=(const HEMesh_ptr& p) {
-    mesh = p.mesh;
     idx = p.idx;
+    mesh = p.mesh;
     return *this;
   }
 
   HEMesh_ptr& operator=(std::nullptr_t) {
-    mesh = nullptr;
     idx = -1;
+    mesh = nullptr;
     return *this;
   }
 
   operator bool() const { return idx != -1; }
 
   operator HEMesh_ptr<const T, HEMesh_t>() const {
-    return HEMesh_ptr<const T, HEMesh_t>(mesh, idx);
+    return HEMesh_ptr<const T, HEMesh_t>(idx, mesh);
   }
 
  private:
@@ -60,10 +64,18 @@ class HEMesh_ptr {
   size_t hash() const { return std::hash<int>()(idx); }
 
  private:
-  template <typename V>
+  template <typename>
   friend class HEMesh;
-  HEMesh_t* mesh;
+  template <typename, typename, typename>
+  friend class THalfEdge;
+  template <typename, typename, typename>
+  friend class TVertex;
+  template <typename, typename, typename>
+  friend class TEdge;
+  template <typename, typename, typename>
+  friend class TPolygon;
   int idx;
+  HEMesh_t* mesh;
 };
 
 template <template <typename, typename...> class ContainerT, typename ValT,

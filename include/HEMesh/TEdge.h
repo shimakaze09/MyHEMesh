@@ -23,13 +23,16 @@ class TEdge {
   using PtrC = ptrc<E>;
 
  public:
-  const ptr<HE> HalfEdge() { return halfEdge; }
+  const ptr<HE> HalfEdge() { return ptr<HE>(halfEdge, mesh); }
 
   const ptrc<HE> HalfEdge() const {
     return const_cast<TEdge*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(ptr<HE> he) { halfEdge = he; }
+  void SetHalfEdge(ptr<HE> he) {
+    assert(he.mesh == nullptr || mesh == he.mesh);
+    halfEdge = he.idx;
+  }
 
   bool IsBoundary() const {
     return HalfEdge()->IsBoundary() || HalfEdge()->Pair()->IsBoundary();
@@ -46,10 +49,11 @@ class TEdge {
   const std::set<ptr<V>> AdjVertices();
   const std::vector<ptr<E>> AdjEdges();
 
-  void Clear() { halfEdge = nullptr; }
-
  private:
-  ptr<HE> halfEdge;
+  friend class HEMesh<V>;
+  HEMesh<V>* mesh = nullptr;
+
+  int halfEdge = -1;
 };
 }  // namespace My
 
