@@ -11,34 +11,35 @@
 #include <unordered_map>
 
 namespace My {
-template <typename V>
+template <typename Traits>
 template <typename T, typename... Args>
-T* const HEMesh<V>::New(Args&&... args) {
-  T* elem = traits<T>::pool(this).request();
+T* const HEMesh<Traits>::New(Args&&... args) {
+  T* elem = MemVarOf<T>::pool(this).Request();
   new (elem) T(std::forward<Args>(args)...);
-  traits<T>::set(this).insert(elem);
+  MemVarOf<T>::set(this).insert(elem);
   return elem;
 }
 
 // clear and erase
-template <typename V>
+template <typename Traits>
 template <typename T>
-void HEMesh<V>::Delete(T* elem) {
-  traits<T>::pool(this).recycle(elem);
-  traits<T>::set(this).erase(elem);
+void HEMesh<Traits>::Delete(T* elem) {
+  MemVarOf<T>::pool(this).Recycle(elem);
+  MemVarOf<T>::set(this).erase(elem);
 }
 
-template <typename V>
-const std::vector<size_t> HEMesh<V>::Indices(P* p) const {
+template <typename Traits>
+const std::vector<size_t> HEMesh<Traits>::Indices(P* p) const {
   std::vector<size_t> indices;
   for (auto v : p->BoundaryVertice())
     indices.push_back(Index(v));
   return indices;
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::E* const HEMesh<V>::AddEdge(V* v0, V* v1, Args&&... args) {
+typename HEMesh<Traits>::E* const HEMesh<Traits>::AddEdge(V* v0, V* v1,
+                                                          Args&&... args) {
   if (v0 == v1) {
     printf(
         "ERROR::HEMesh::AddEdge\n"
@@ -108,9 +109,9 @@ typename HEMesh<V>::E* const HEMesh<V>::AddEdge(V* v0, V* v1, Args&&... args) {
   return e;
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::P* const HEMesh<V>::AddPolygon(
+typename HEMesh<Traits>::P* const HEMesh<Traits>::AddPolygon(
     const std::vector<HE*> heLoop, Args&&... args) {
   if (heLoop.size() == 0) {
     printf(
@@ -161,16 +162,16 @@ typename HEMesh<V>::P* const HEMesh<V>::AddPolygon(
   return polygon;
 }
 
-template <typename V>
-void HEMesh<V>::RemovePolygon(P* polygon) {
+template <typename Traits>
+void HEMesh<Traits>::RemovePolygon(P* polygon) {
   assert(polygon != nullptr);
   for (auto he : polygon->BoundaryHEs())
     he->SetPolygon(nullptr);
   Delete<P>(polygon);
 }
 
-template <typename V>
-void HEMesh<V>::RemoveEdge(E* e) {
+template <typename Traits>
+void HEMesh<Traits>::RemoveEdge(E* e) {
   assert(e != nullptr);
   auto he0 = e->HalfEdge();
   auto he1 = he0->Pair();
@@ -206,15 +207,15 @@ void HEMesh<V>::RemoveEdge(E* e) {
   Delete<E>(e);
 }
 
-template <typename V>
-void HEMesh<V>::RemoveVertex(V* v) {
+template <typename Traits>
+void HEMesh<Traits>::RemoveVertex(V* v) {
   for (auto e : v->AdjEdges())
     RemoveEdge(e);
   Delete<V>(v);
 }
 
-template <typename V>
-bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
+template <typename Traits>
+bool HEMesh<Traits>::Init(const std::vector<std::vector<size_t>>& polygons) {
   Clear();
 
   if (polygons.empty()) {
@@ -291,8 +292,8 @@ bool HEMesh<V>::Init(const std::vector<std::vector<size_t>>& polygons) {
   return true;
 }
 
-template <typename V>
-bool HEMesh<V>::Init(const std::vector<size_t>& polygons, size_t sides) {
+template <typename Traits>
+bool HEMesh<Traits>::Init(const std::vector<size_t>& polygons, size_t sides) {
   if (polygons.size() % sides != 0) {
     printf(
         "ERROR::HEMesh::Init:\n"
@@ -308,8 +309,8 @@ bool HEMesh<V>::Init(const std::vector<size_t>& polygons, size_t sides) {
   return Init(arrangedPolygons);
 }
 
-template <typename V>
-const std::vector<std::vector<size_t>> HEMesh<V>::Export() const {
+template <typename Traits>
+const std::vector<std::vector<size_t>> HEMesh<Traits>::Export() const {
   std::vector<std::vector<size_t>> arrangedPolygons;
   if (!IsValid())
     return arrangedPolygons;
@@ -321,16 +322,16 @@ const std::vector<std::vector<size_t>> HEMesh<V>::Export() const {
   return arrangedPolygons;
 }
 
-template <typename V>
-void HEMesh<V>::Clear() {
+template <typename Traits>
+void HEMesh<Traits>::Clear() {
   vertices.clear();
   halfEdges.clear();
   edges.clear();
   polygons.clear();
 }
 
-template <typename V>
-void HEMesh<V>::Reserve(size_t n) {
+template <typename Traits>
+void HEMesh<Traits>::Reserve(size_t n) {
   vertices.reserve(n);
   poolV.reserve(n);
 
@@ -344,8 +345,8 @@ void HEMesh<V>::Reserve(size_t n) {
   poolP.reserve(2 * n);
 }
 
-template <typename V>
-bool HEMesh<V>::HaveBoundary() const {
+template <typename Traits>
+bool HEMesh<Traits>::HaveBoundary() const {
   for (auto he : halfEdges) {
     if (he->IsBoundary())
       return true;
@@ -353,8 +354,8 @@ bool HEMesh<V>::HaveBoundary() const {
   return false;
 }
 
-template <typename V>
-bool HEMesh<V>::HaveIsolatedVertices() const {
+template <typename Traits>
+bool HEMesh<Traits>::HaveIsolatedVertices() const {
   for (auto v : vertices) {
     if (v->IsIsolated())
       return true;
@@ -362,9 +363,9 @@ bool HEMesh<V>::HaveIsolatedVertices() const {
   return false;
 }
 
-template <typename V>
-const std::vector<std::vector<typename HEMesh<V>::HE*>>
-HEMesh<V>::Boundaries() {
+template <typename Traits>
+const std::vector<std::vector<typename HEMesh<Traits>::HE*>>
+HEMesh<Traits>::Boundaries() {
   std::vector<std::vector<HE*>> boundaries;
   std::set<HE*> found;
   for (auto he : halfEdges) {
@@ -381,8 +382,8 @@ HEMesh<V>::Boundaries() {
   return boundaries;
 }
 
-template <typename V>
-bool HEMesh<V>::IsValid() const {
+template <typename Traits>
+bool HEMesh<Traits>::IsValid() const {
   for (auto he : halfEdges) {
     if (!he->Next() || !he->Pair() || !he->Origin() || !he->Edge())
       return false;
@@ -436,8 +437,8 @@ bool HEMesh<V>::IsValid() const {
   return true;
 }
 
-template <typename V>
-bool HEMesh<V>::IsTriMesh() const {
+template <typename Traits>
+bool HEMesh<Traits>::IsTriMesh() const {
   for (auto poly : polygons) {
     if (poly->Degree() != 3)
       return false;
@@ -445,8 +446,8 @@ bool HEMesh<V>::IsTriMesh() const {
   return IsValid();
 }
 
-template <typename V>
-const typename HEMesh<V>::P* HEMesh<V>::EraseVertex(V* v) {
+template <typename Traits>
+const typename HEMesh<Traits>::P* HEMesh<Traits>::EraseVertex(V* v) {
   if (v->IsBoundary()) {
     RemoveVertex(v);
     return nullptr;
@@ -466,9 +467,10 @@ const typename HEMesh<V>::P* HEMesh<V>::EraseVertex(V* v) {
   return AddPolygon(he->NextLoop());
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::V* const HEMesh<V>::AddEdgeVertex(E* e, Args&&... args) {
+typename HEMesh<Traits>::V* const HEMesh<Traits>::AddEdgeVertex(
+    E* e, Args&&... args) {
   // prepare
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
@@ -569,10 +571,10 @@ typename HEMesh<V>::V* const HEMesh<V>::AddEdgeVertex(E* e, Args&&... args) {
   return v2;
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::E* const HEMesh<V>::ConnectVertex(HE* he0, HE* he1,
-                                                      Args&&... args) {
+typename HEMesh<Traits>::E* const HEMesh<Traits>::ConnectVertex(
+    HE* he0, HE* he1, Args&&... args) {
   auto p = he0->Polygon();
   if (p != he1->Polygon()) {
     printf(
@@ -644,8 +646,8 @@ typename HEMesh<V>::E* const HEMesh<V>::ConnectVertex(HE* he0, HE* he1,
   return e01;
 }
 
-template <typename V>
-bool HEMesh<V>::FlipEdge(E* e) {
+template <typename Traits>
+bool HEMesh<Traits>::FlipEdge(E* e) {
   if (e->IsBoundary()) {
     printf(
         "ERROR::HEMesh::FlipEdge:\n"
@@ -705,15 +707,16 @@ bool HEMesh<V>::FlipEdge(E* e) {
   return true;
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::V* const HEMesh<V>::SplitEdge(E* e, Args&&... args) {
+typename HEMesh<Traits>::V* const HEMesh<Traits>::SplitEdge(E* e,
+                                                            Args&&... args) {
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
 
   if (he01->IsBoundary() && he10->IsBoundary()) {
     printf(
-        "ERROR::HEMesh::SpiltEdge:\n"
+        "ERROR::HEMesh::SplitEdge:\n"
         "\t"
         "two side of edge are boundaries\n");
     return nullptr;
@@ -727,7 +730,7 @@ typename HEMesh<V>::V* const HEMesh<V>::SplitEdge(E* e, Args&&... args) {
 
     if (p01->Degree() != 3) {
       printf(
-          "ERROR::HEMesh::SpiltEdge:\n"
+          "ERROR::HEMesh::SplitEdge:\n"
           "\t"
           "polygon's degree %zd is not 3\n",
           p01->Degree());
@@ -796,7 +799,7 @@ typename HEMesh<V>::V* const HEMesh<V>::SplitEdge(E* e, Args&&... args) {
 
   if (p01->Degree() != 3 || p10->Degree() != 3) {
     printf(
-        "ERROR::HEMesh::SpiltEdge:\n"
+        "ERROR::HEMesh::SplitEdge:\n"
         "\t"
         "polygon's degree (%zd, %zd) is not 3\n",
         p01->Degree(), p10->Degree());
@@ -875,9 +878,10 @@ typename HEMesh<V>::V* const HEMesh<V>::SplitEdge(E* e, Args&&... args) {
   return v4;
 }
 
-template <typename V>
+template <typename Traits>
 template <typename... Args>
-typename HEMesh<V>::V* const HEMesh<V>::CollapseEdge(E* e, Args&&... args) {
+typename HEMesh<Traits>::V* const HEMesh<Traits>::CollapseEdge(E* e,
+                                                               Args&&... args) {
   auto he01 = e->HalfEdge();
   auto he10 = he01->Pair();
 

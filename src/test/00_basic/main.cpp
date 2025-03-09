@@ -13,8 +13,9 @@ using namespace std;
 class V;
 class E;
 class P;
+using TraitsVEP = HEMeshTriats<V, E, P>;
 
-class V : public TVertex<V, E, P> {
+class V : public TVertex<TraitsVEP> {
  public:
   V(const string& name = "NO_NAME") : name(name) {}
 
@@ -24,7 +25,7 @@ class V : public TVertex<V, E, P> {
   string name;
 };
 
-class E : public TEdge<V, E, P> {
+class E : public TEdge<TraitsVEP> {
  public:
   E(const string& pre = "E") : pre(pre) {}
 
@@ -40,7 +41,7 @@ class E : public TEdge<V, E, P> {
   string pre;
 };
 
-class P : public TPolygon<V, E, P> {
+class P : public TPolygon<TraitsVEP> {
  public:
   P(const string& pre = "P") : pre(pre) {}
 
@@ -67,12 +68,12 @@ ostream& operator<<(ostream& os, V* v) {
   return os;
 }
 
-ostream& operator<<(ostream& os, HEMesh<V>::HE* he) {
+ostream& operator<<(ostream& os, HEMesh<TraitsVEP>::HE* he) {
   os << he->Origin() << "->" << he->End();
   return os;
 }
 
-void Print(shared_ptr<HEMesh<V>> mesh) {
+void Print(shared_ptr<HEMesh<TraitsVEP>> mesh) {
   cout << (mesh->IsValid() ? "[valid]" : "[not valid]") << endl;
   cout << " V:" << mesh->Vertices().size() << endl;
   for (auto v : mesh->Vertices())
@@ -107,7 +108,7 @@ int main() {
          << "    test basic    " << endl
          << "------------------" << endl;
 
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
     cout << "add v0, v1, v2" << endl;
 
     auto v0 = mesh->AddVertex("v0");
@@ -145,10 +146,10 @@ int main() {
   // test spilt edge
   {
     cout << "----------------------" << endl
-         << "    test SplitEdge        " << endl
+         << "    test SplitEdge    " << endl
          << "----------------------" << endl;
 
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
 
     auto v0 = mesh->AddVertex("v0");
     auto v1 = mesh->AddVertex("v1");
@@ -183,7 +184,7 @@ int main() {
          << "    test FlipEdge    " << endl
          << "-----------------------" << endl;
 
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
 
     auto v0 = mesh->AddVertex("v1");
     auto v1 = mesh->AddVertex("v2");
@@ -217,7 +218,7 @@ int main() {
          << "    test CollapseEdge    " << endl
          << "-------------------------" << endl;
 
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
 
     auto v0 = mesh->AddVertex("v0");
     auto v1 = mesh->AddVertex("v1");
@@ -270,7 +271,7 @@ int main() {
     indices.push_back({9, 10, 17});
     indices.push_back({1, 2, 3, 4, 16});
     indices.push_back({14, 16, 17});
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
     mesh->Init(indices);
     for (size_t i = 0; i <= 17; i++)
       mesh->Vertices().at(i)->name = "v" + to_string(i);
@@ -302,7 +303,7 @@ int main() {
     indices.push_back({6, 8, 9});
     indices.push_back({5, 0, 6});
 
-    auto mesh = make_shared<HEMesh<V>>();
+    auto mesh = make_shared<HEMesh<TraitsVEP>>();
     mesh->Init(indices);
     for (size_t i = 0; i <= 9; i++)
       mesh->Vertices().at(i)->name = "v" + to_string(i);
@@ -316,15 +317,16 @@ int main() {
 
   {
     auto mesh0 = make_shared<HEMesh<>>();
-    auto mesh1 = make_shared<HEMesh<V>>();  // V E P
+    auto mesh1 = make_shared<HEMesh<TraitsVEP>>();  // V E P
     class tV;
     class tE;
+    using TraitsVE = HEMeshTriats_EmptyP<tV, tE>;
 
-    class tV : public TVertex<tV, tE> {};
+    class tV : public TVertex<TraitsVE> {};
 
-    class tE : public TEdge<tV, tE> {};
+    class tE : public TEdge<TraitsVE> {};
 
-    auto mesh2 = make_shared<HEMesh<tV>>();
+    auto mesh2 = make_shared<HEMesh<TraitsVE>>();
   }
 
   return 0;

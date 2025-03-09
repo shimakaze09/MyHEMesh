@@ -1,5 +1,9 @@
 # MyHEMesh
 
+> **My** **H**alf-**E**dge **Mesh**
+
+[![repo-size](https://img.shields.io/github/languages/code-size/shimakaze09/MyHEMesh?style=flat)](https://github.com/shimakaze09/MyHEMesh/archive/main.zip) [![tag](https://img.shields.io/github/v/tag/shimakaze09/MyHEMesh)](https://github.com/shimakaze09/MyHEMesh/tags) [![license](https://img.shields.io/github/license/shimakaze09/MyHEMesh)](LICENSE)
+
 an elegant, high-performance, user-friendly halfedge data structure
 
 ## Feature
@@ -37,13 +41,14 @@ using namespace My;
 class V;
 class E;
 class P;
+using Traits_VEP = HEMeshTraits<V, E, P>;
 // custom vertex, edge and polygon class
-class V : public TVertex<V, E, P> { /*...*/ }
-class E : public TEdge<V, E, P> { /*...*/ }
-class P : public TPolygon<V, E, P> { /*...*/ }
+class V : public TVertex<Traits_VEP> { /*...*/ }
+class E : public TEdge<Traits_VEP> { /*...*/ }
+class P : public TPolygon<Traits_VEP> { /*...*/ }
 int main() {
     std::vector<size_t> indices = {0,1,2,0,2,3};
-    HEMesh<V> mesh(indices, 3);
+    HEMesh<Traits_VEP> mesh(indices, 3);
     // ...
 }
 ```

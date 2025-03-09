@@ -7,11 +7,15 @@
 #include "detail/ForwardDecl.h"
 
 namespace My {
-template <typename V, typename E, typename P>
+template <typename Traits>
 class THalfEdge {
- private:
-  // internal use
-  using HE = THalfEdge<V, E, P>;
+  friend class HEMesh<Traits>;
+
+ public:
+  using V = HEMeshTriats_V<Traits>;
+  using E = HEMeshTriats_E<Traits>;
+  using P = HEMeshTriats_P<Traits>;
+  using HE = HEMeshTriats_HE<Traits>;
 
  public:
   HE* const Next() { return next; }

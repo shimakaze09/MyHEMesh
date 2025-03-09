@@ -5,8 +5,8 @@
 #pragma once
 
 namespace My {
-template <typename V, typename E, typename P>
-THalfEdge<V, E, P>* const THalfEdge<V, E, P>::Pre() {
+template <typename Traits>
+HEMeshTriats_HE<Traits>* const THalfEdge<Traits>::Pre() {
   auto he = this;
   auto next = he->Next();
   do {
@@ -16,8 +16,8 @@ THalfEdge<V, E, P>* const THalfEdge<V, E, P>::Pre() {
   return he;
 }
 
-template <typename V, typename E, typename P>
-void THalfEdge<V, E, P>::Init(HE* next, HE* pair, V* v, E* e, P* p) {
+template <typename Traits>
+void THalfEdge<Traits>::Init(HE* next, HE* pair, V* v, E* e, P* p) {
   assert(next != nullptr && pair != nullptr && v != nullptr && e != nullptr);
   this->next = next;
   this->pair = pair;
@@ -26,9 +26,9 @@ void THalfEdge<V, E, P>::Init(HE* next, HE* pair, V* v, E* e, P* p) {
   polygon = p;
 }
 
-template <typename V, typename E, typename P>
-THalfEdge<V, E, P>* const THalfEdge<V, E, P>::FindFreeIncident(HE* begin,
-                                                               HE* end) {
+template <typename Traits>
+HEMeshTriats_HE<Traits>* const THalfEdge<Traits>::FindFreeIncident(HE* begin,
+                                                                   HE* end) {
   assert(begin->End() == end->End());
 
   for (auto he = begin; he != end; he = he->Next()->Pair()) {
@@ -39,8 +39,8 @@ THalfEdge<V, E, P>* const THalfEdge<V, E, P>::FindFreeIncident(HE* begin,
   return nullptr;
 }
 
-template <typename V, typename E, typename P>
-bool THalfEdge<V, E, P>::MakeAdjacent(HE* inHE, HE* outHE) {
+template <typename Traits>
+bool THalfEdge<Traits>::MakeAdjacent(HE* inHE, HE* outHE) {
   assert(inHE->End() == outHE->Origin());
 
   if (inHE->Next() == outHE)
@@ -61,8 +61,8 @@ bool THalfEdge<V, E, P>::MakeAdjacent(HE* inHE, HE* outHE) {
   return true;
 }
 
-template <typename V, typename E, typename P>
-const std::vector<THalfEdge<V, E, P>*> THalfEdge<V, E, P>::NextBetween(
+template <typename Traits>
+const std::vector<HEMeshTriats_HE<Traits>*> THalfEdge<Traits>::NextBetween(
     HE* begin, HE* end) {
   std::vector<HE*> hes;
   auto he = begin;
@@ -73,9 +73,9 @@ const std::vector<THalfEdge<V, E, P>*> THalfEdge<V, E, P>::NextBetween(
   return hes;
 }
 
-template <typename V, typename E, typename P>
-const std::vector<THalfEdge<V, E, P>*> THalfEdge<V, E, P>::RotateNextBetween(
-    HE* begin, HE* end) {
+template <typename Traits>
+const std::vector<HEMeshTriats_HE<Traits>*>
+THalfEdge<Traits>::RotateNextBetween(HE* begin, HE* end) {
   std::vector<HE*> hes;
   auto he = begin;
   do {

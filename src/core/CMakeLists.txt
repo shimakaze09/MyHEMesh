@@ -1,4 +1,5 @@
 ADD_TARGET(
-    MODE HEAD
-    INC include
+        MODE HEAD
+        INC
+        "include"
 )
