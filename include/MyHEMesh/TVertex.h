@@ -15,34 +15,34 @@ class TVertex {
   using V = HEMeshTriats_V<Traits>;
   using E = HEMeshTriats_E<Traits>;
   using P = HEMeshTriats_P<Traits>;
-  using HE = HEMeshTriats_HE<Traits>;
+  using H = HEMeshTriats_H<Traits>;
 
  public:
-  HE* const HalfEdge() { return halfEdge; }
+  H* const HalfEdge() { return halfEdge; }
 
-  const HE* const HalfEdge() const {
+  const H* const HalfEdge() const {
     return const_cast<TVertex*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(HE* he) { halfEdge = he; }
+  void SetHalfEdge(H* he) { halfEdge = he; }
 
   bool IsIsolated() const { return !halfEdge; }
 
   bool IsBoundary() const;
 
-  size_t Degree() const { return OutHEs().size(); }
+  size_t Degree() const { return OutHalfEdges().size(); }
 
-  const std::vector<HE*> OutHEs() {
-    return IsIsolated() ? std::vector<HE*>() : HalfEdge()->RotateNextLoop();
+  const std::vector<H*> OutHalfEdges() {
+    return IsIsolated() ? std::vector<H*>() : HalfEdge()->RotateNextLoop();
   }
 
-  const std::vector<const HE*> OutHEs() const {
-    return Const(const_cast<TVertex*>(this)->OutHEs());
+  const std::vector<const H*> OutHalfEdges() const {
+    return Const(const_cast<TVertex*>(this)->OutHalfEdges());
   }
 
   const std::vector<E*> AdjEdges();
 
-  const std::vector<const HE*> AdjEdges() const {
+  const std::vector<const H*> AdjEdges() const {
     return Const(const_cast<TVertex*>(this)->AdjEdges());
   }
 
@@ -58,23 +58,23 @@ class TVertex {
     return Const(const_cast<TVertex*>(this)->AdjPolygons());
   }
 
-  HE* const FindFreeIncident();
+  H* const FindFreeIncident();
 
-  const HE* const FindFreeIncident() const {
+  const H* const FindFreeIncident() const {
     return const_cast<TVertex*>(this)->FindFreeOutHE();
   }
 
-  HE* const HalfEdgeTo(V* end);
+  H* const HalfEdgeTo(V* end);
 
-  const HE* const HalfEdgeTo(const V* end) const {
+  const H* const HalfEdgeTo(const V* end) const {
     return const_cast<TVertex*>(this)->HalfEdgeTo(const_cast<V*>(end));
   }
 
-  static HE* const HalfEdgeAlong(V* origin, V* end) {
+  static H* const HalfEdgeAlong(V* origin, V* end) {
     return origin->HalfEdgeTo(end);
   }
 
-  static const HE* const HalfEdgeAlong(const V* origin, const V* end) {
+  static const H* const HalfEdgeAlong(const V* origin, const V* end) {
     return HalfEdgeAlong(const_cast<V*>(origin), const_cast<V*>(end));
   }
 
@@ -97,7 +97,7 @@ class TVertex {
   }
 
  private:
-  HE* halfEdge = nullptr;
+  H* halfEdge = nullptr;
 };
 }  // namespace My
 
