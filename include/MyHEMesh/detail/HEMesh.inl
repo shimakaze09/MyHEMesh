@@ -951,6 +951,9 @@ HEMeshTriats_V<Traits>* const HEMesh<Traits>::CollapseEdge(E* e,
     return nullptr;
   }
 
+  if (v0->IsBoundary() && v1->IsBoundary() && !e->IsBoundary())
+    return nullptr;
+
   if (v0->Degree() == 1) {
     EraseVertex(v0);
     return v1;

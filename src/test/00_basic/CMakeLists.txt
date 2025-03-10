@@ -4,5 +4,4 @@ ADD_TARGET(
         MODE EXE
         LIB
         ${CORE}
-        My::MyContainer_core
 )

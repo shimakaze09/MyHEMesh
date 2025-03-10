@@ -1,5 +1,7 @@
 ADD_TARGET(
-        MODE HEAD
+        MODE INTERFACE
+        LIB
+        My::MyContainer_core
         INC
-        "include"
+        "${PROJECT_SOURCE_DIR}/include"
 )
