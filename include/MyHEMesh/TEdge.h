@@ -24,6 +24,7 @@ class TEdge {
 
   void SetHalfEdge(H* he) noexcept { halfEdge = he; }
 
+  // edge is boundary == any halfedge is boundary
   bool IsBoundary() const noexcept {
     return HalfEdge()->IsBoundary() || HalfEdge()->Pair()->IsBoundary();
   }
@@ -33,8 +34,10 @@ class TEdge {
   // + [he.next, he.next.RotateNext, ..., he.pair)
   const std::vector<H*> AdjOutHalfEdges();
 
+  // { halfedge.End() for halfedge in OutHalfEdges() }
   const std::set<V*> AdjVertices();
 
+  // { halfedge.Edge() for halfedge in OutHalfEdges() }
   const std::vector<E*> AdjEdges();
 
  private:
