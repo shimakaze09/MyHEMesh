@@ -39,27 +39,6 @@ class HEMesh {
 
   const std::vector<H*>& HalfEdges() noexcept { return halfEdges.vec(); }
 
-  const std::vector<const V*>& Vertices() const noexcept {
-    return reinterpret_cast<const std::vector<const V*>&>(vertices.vec());
-  }
-
-  const std::vector<const E*>& Edges() const noexcept {
-    return reinterpret_cast<const std::vector<const E*>&>(edges.vec());
-  }
-
-  const std::vector<const P*>& Polygons() const noexcept {
-    return reinterpret_cast<const std::vector<const P*>&>(polygons.vec());
-  }
-
-  const std::vector<const H*>& HalfEdges() const noexcept {
-    return reinterpret_cast<const std::vector<const H*>&>(halfEdges.vec());
-  }
-
-  /*
-		* ordered boundary == std::vector<H*>
-		* boundaries == std::vector<ordered boundary>
-		* there maybe several boundaries in a mesh
-		*/
   const std::vector<std::vector<H*>> Boundaries();
 
   size_t NumVertices() const { return vertices.size(); }

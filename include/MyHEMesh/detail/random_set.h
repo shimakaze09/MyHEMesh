@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace My {
-template <typename T, class Hasher = std::hash<T>>
+template <typename T>
 class random_set {
  public:
   void insert(const T& e) {
@@ -65,7 +65,7 @@ class random_set {
   bool empty() const noexcept { return Tvec.empty(); }
 
  private:
-  std::unordered_map<T, size_t, Hasher> Tmap;
+  std::unordered_map<T, size_t> Tmap;
   std::vector<T> Tvec;
 };
 }  // namespace My
