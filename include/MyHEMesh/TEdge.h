@@ -37,7 +37,7 @@ class TEdge {
   // clockwise
   // + [he.RotateNext, he.RotateNext.RotateNext, ..., he)
   // + [he.next, he.next.RotateNext, ..., he.pair)
-  const std::vector<H*> OutHalfEdges();
+  const std::vector<H*> AdjOutHalfEdges();
 
   const std::vector<const H*> AdjOutHalfEdges() const {
     return Const(const_cast<TEdge*>(this)->AdjOutHalfEdges());

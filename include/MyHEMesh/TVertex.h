@@ -61,7 +61,7 @@ class TVertex {
   H* const FindFreeIncident();
 
   const H* const FindFreeIncident() const {
-    return const_cast<TVertex*>(this)->FindFreeOutHE();
+    return const_cast<TVertex*>(this)->FindFreeIncident();
   }
 
   H* const HalfEdgeTo(V* end);

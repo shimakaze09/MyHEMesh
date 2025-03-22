@@ -53,7 +53,7 @@ class TPolygon {
   const std::vector<P*> AdjPolygons();
 
   const std::vector<const V*> AdjPolygons() const {
-    return Const(const_cast<TPolygon*>(this)->AdjVertices());
+    return Const(const_cast<TPolygon*>(this)->AdjPolygons());
   }
 
  private:
