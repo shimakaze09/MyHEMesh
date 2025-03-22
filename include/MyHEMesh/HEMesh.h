@@ -39,17 +39,22 @@ class HEMesh {
 
   const std::vector<H*>& HalfEdges() noexcept { return halfEdges.vec(); }
 
+  /*
+   * ordered boundary == std::vector<H*>
+   * boundaries == std::vector<ordered boundary>
+   * there maybe several boundaries in a mesh
+   */
   const std::vector<std::vector<H*>> Boundaries();
 
-  size_t NumVertices() const { return vertices.size(); }
+  size_t NumVertices() const noexcept { return vertices.size(); }
 
-  size_t NumEdges() const { return edges.size(); }
+  size_t NumEdges() const noexcept { return edges.size(); }
 
-  size_t NumPolygons() const { return polygons.size(); }
+  size_t NumPolygons() const noexcept { return polygons.size(); }
 
-  size_t NumHalfEdges() const { return halfEdges.size(); }
+  size_t NumHalfEdges() const noexcept { return halfEdges.size(); }
 
-  size_t NumBoundaries() const {
+  size_t NumBoundaries() const noexcept {
     return const_cast<HEMesh*>(this)->Boundaries().size();
   }
 
@@ -66,15 +71,15 @@ class HEMesh {
   bool IsTriMesh() const;
 
   // vertices empty => halfedges, edges and polygons empty
-  bool IsEmpty() const { return vertices.empty(); }
+  bool IsEmpty() const noexcept { return vertices.empty(); }
 
-  bool HaveIsolatedVertices() const;
-  bool HaveBoundary() const;
+  bool HaveIsolatedVertices() const noexcept;
+  bool HaveBoundary() const noexcept;
 
   // min is 0
   bool Init(const std::vector<std::vector<size_t>>& polygons);
   bool Init(const std::vector<size_t>& polygons, size_t sides);
-  void Clear();
+  void Clear() noexcept;
   void Reserve(size_t n);
   const std::vector<std::vector<size_t>> Export() const;
 

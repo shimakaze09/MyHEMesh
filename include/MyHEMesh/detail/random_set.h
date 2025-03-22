@@ -12,8 +12,8 @@ template <typename T>
 class random_set {
  public:
   void insert(const T& e) {
-    assert(Tmap.find(e) == Tmap.end());
-    Tmap[e] = Tvec.size();
+    assert(!contains(e));
+    Tmap.emplace(e, Tvec.size());
     Tvec.push_back(e);
   }
 
@@ -37,9 +37,13 @@ class random_set {
 
   auto end() const noexcept { return Tvec.end(); }
 
-  T& operator[](size_t i) { return Tvec[i]; }
+  T& operator[](size_t i) noexcept { return Tvec[i]; }
 
-  const T& operator[](size_t i) const { return Tvec[i]; }
+  const T& operator[](size_t i) const noexcept { return Tvec[i]; }
+
+  T& at(size_t i) { return Tvec.at(i); }
+
+  const T& at(size_t i) const { return Tvec.at(i); }
 
   size_t size() const noexcept { return Tvec.size(); }
 
@@ -55,10 +59,7 @@ class random_set {
 
   const std::vector<T>& vec() const noexcept { return Tvec; }
 
-  size_t idx(const T& e) const {
-    assert(Tmap.find(e) != Tmap.end());
-    return Tmap.find(e)->second;
-  }
+  size_t idx(const T& e) const { return Tmap.at(e); }
 
   bool contains(const T& e) const { return Tmap.find(e) != Tmap.end(); }
 

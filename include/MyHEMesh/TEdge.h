@@ -16,20 +16,16 @@ class TEdge {
   using H = HEMeshTriats_H<Traits>;
 
  public:
-  H* const HalfEdge() { return halfEdge; }
+  H* const HalfEdge() noexcept { return halfEdge; }
 
-  const H* const HalfEdge() const {
+  const H* const HalfEdge() const noexcept {
     return const_cast<TEdge*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(H* he) { halfEdge = he; }
+  void SetHalfEdge(H* he) noexcept { halfEdge = he; }
 
-  bool IsBoundary() const {
+  bool IsBoundary() const noexcept {
     return HalfEdge()->IsBoundary() || HalfEdge()->Pair()->IsBoundary();
-  }
-
-  bool IsFree() const {
-    return HalfEdge()->IsFree() && HalfEdge()->Pair()->IsFree();
   }
 
   // clockwise
@@ -42,7 +38,11 @@ class TEdge {
   const std::vector<E*> AdjEdges();
 
  private:
-  friend class HEMesh<Traits>;
+  friend HEMesh<Traits>;
+
+  bool IsFree() const noexcept {
+    return HalfEdge()->IsFree() && HalfEdge()->Pair()->IsFree();
+  }
 
   H* halfEdge{nullptr};
 };

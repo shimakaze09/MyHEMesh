@@ -6,7 +6,7 @@
 
 namespace My {
 template <typename Traits>
-bool TVertex<Traits>::IsBoundary() const {
+bool TVertex<Traits>::IsBoundary() const noexcept {
   if (IsIsolated())
     return true;
 
@@ -19,6 +19,22 @@ bool TVertex<Traits>::IsBoundary() const {
   } while (he != begin);
 
   return false;
+}
+
+template <typename Traits>
+size_t TVertex<Traits>::Degree() const noexcept {
+  if (IsIsolated())
+    return 0;
+
+  auto begin = HalfEdge();
+  auto he = begin;
+  size_t degree = 0;
+  do {
+    ++degree;
+    he = he->RotateNext();
+  } while (he != begin);
+
+  return degree;
 }
 
 template <typename Traits>
@@ -46,7 +62,7 @@ const std::set<HEMeshTriats_P<Traits>*> TVertex<Traits>::AdjPolygons() {
 }
 
 template <typename Traits>
-HEMeshTriats_H<Traits>* const TVertex<Traits>::FindFreeIncident() {
+HEMeshTriats_H<Traits>* const TVertex<Traits>::FindFreeIncident() noexcept {
   if (IsIsolated())
     return nullptr;
 
@@ -62,7 +78,7 @@ HEMeshTriats_H<Traits>* const TVertex<Traits>::FindFreeIncident() {
 }
 
 template <typename Traits>
-HEMeshTriats_H<Traits>* const TVertex<Traits>::HalfEdgeTo(V* end) {
+HEMeshTriats_H<Traits>* const TVertex<Traits>::HalfEdgeTo(V* end) noexcept {
   if (IsIsolated())
     return nullptr;
 
@@ -78,7 +94,7 @@ HEMeshTriats_H<Traits>* const TVertex<Traits>::HalfEdgeTo(V* end) {
 }
 
 template <typename Traits>
-HEMeshTriats_E<Traits>* const TVertex<Traits>::EdgeWith(V* v) {
+HEMeshTriats_E<Traits>* const TVertex<Traits>::EdgeWith(V* v) noexcept {
   auto he = HalfEdgeTo(v);
   if (!he)
     return nullptr;

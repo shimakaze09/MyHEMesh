@@ -16,19 +16,17 @@ class TPolygon {
   using H = HEMeshTriats_H<Traits>;
 
  public:
-  H* const HalfEdge() { return halfEdge; }
+  H* const HalfEdge() noexcept { return halfEdge; }
 
-  const H* const HalfEdge() const {
+  const H* const HalfEdge() const noexcept {
     return const_cast<TPolygon*>(this)->HalfEdge();
   }
 
-  void SetHalfEdge(H* he) { halfEdge = he; }
+  void SetHalfEdge(H* he) noexcept { halfEdge = he; }
 
-  static bool IsBoundary(const P* p) { return p == nullptr; }
+  static bool IsBoundary(const P* p) noexcept { return p == nullptr; }
 
-  size_t Degree() const {
-    return static_cast<int>(const_cast<TPolygon*>(this)->AdjHalfEdges().size());
-  }
+  size_t Degree() const noexcept;
 
   const std::vector<H*> AdjHalfEdges() { return HalfEdge()->NextLoop(); }
 
@@ -39,7 +37,7 @@ class TPolygon {
   const std::vector<P*> AdjPolygons();
 
  private:
-  friend class HEMesh<Traits>;
+  friend HEMesh<Traits>;
 
   H* halfEdge{nullptr};
 };
