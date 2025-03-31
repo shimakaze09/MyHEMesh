@@ -19,7 +19,7 @@ std::vector<HEMeshTraits_H<Traits>*> TEdge<Traits>::AdjOutHalfEdges() {
 template <typename Traits>
 std::set<HEMeshTraits_V<Traits>*> TEdge<Traits>::AdjVertices() {
   std::set<V*> vertices;
-  for (auto he : OutHalfEdges())
+  for (auto he : AdjOutHalfEdges())
     vertices.insert(he->End());
   return vertices;
 }
@@ -27,7 +27,7 @@ std::set<HEMeshTraits_V<Traits>*> TEdge<Traits>::AdjVertices() {
 template <typename Traits>
 std::vector<HEMeshTraits_E<Traits>*> TEdge<Traits>::AdjEdges() {
   std::vector<E*> edges;
-  for (auto he : OutHalfEdges())
+  for (auto he : AdjOutHalfEdges())
     edges.push_back(he->Edge());
   return edges;
 }
