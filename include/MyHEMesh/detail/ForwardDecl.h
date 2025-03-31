@@ -10,11 +10,11 @@
 
 #include <cassert>
 
-#include "../HEMeshTriats.h"
+#include "../HEMeshTraits.h"
 
 namespace My {
 template <typename V, typename E, typename P, typename H>
-struct HEMeshTriats;
+struct HEMeshTraits;
 
 template <typename Traits>
 class THalfEdge;

@@ -19,7 +19,7 @@ size_t TPolygon<Traits>::Degree() const noexcept {
 }
 
 template <typename Traits>
-std::vector<HEMeshTriats_E<Traits>*> TPolygon<Traits>::AdjEdges() {
+std::vector<HEMeshTraits_E<Traits>*> TPolygon<Traits>::AdjEdges() {
   std::vector<E*> edges;
   for (auto he : AdjHalfEdges())
     edges.push_back(he->Edge());
@@ -27,7 +27,7 @@ std::vector<HEMeshTriats_E<Traits>*> TPolygon<Traits>::AdjEdges() {
 }
 
 template <typename Traits>
-std::vector<HEMeshTriats_V<Traits>*> TPolygon<Traits>::AdjVertices() {
+std::vector<HEMeshTraits_V<Traits>*> TPolygon<Traits>::AdjVertices() {
   std::vector<V*> vertices;
   for (auto he : AdjHalfEdges())
     vertices.push_back(he->Origin());
@@ -35,7 +35,7 @@ std::vector<HEMeshTriats_V<Traits>*> TPolygon<Traits>::AdjVertices() {
 }
 
 template <typename Traits>
-std::vector<HEMeshTriats_P<Traits>*> TPolygon<Traits>::AdjPolygons() {
+std::vector<HEMeshTraits_P<Traits>*> TPolygon<Traits>::AdjPolygons() {
   std::vector<P*> polygons;
   for (auto he : AdjHalfEdges())
     polygons.push_back(he->Pair()->Polygon());

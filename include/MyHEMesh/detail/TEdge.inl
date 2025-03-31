@@ -6,7 +6,7 @@
 
 namespace My {
 template <typename Traits>
-std::vector<HEMeshTriats_H<Traits>*> TEdge<Traits>::AdjOutHalfEdges() {
+std::vector<HEMeshTraits_H<Traits>*> TEdge<Traits>::AdjOutHalfEdges() {
   std::vector<H*> hes;
   auto he01 = HalfEdge();  // v0 => v1
   for (auto he = he01->RotateNext(); he != he01; he = he->RotateNext())
@@ -17,7 +17,7 @@ std::vector<HEMeshTriats_H<Traits>*> TEdge<Traits>::AdjOutHalfEdges() {
 }
 
 template <typename Traits>
-std::set<HEMeshTriats_V<Traits>*> TEdge<Traits>::AdjVertices() {
+std::set<HEMeshTraits_V<Traits>*> TEdge<Traits>::AdjVertices() {
   std::set<V*> vertices;
   for (auto he : OutHalfEdges())
     vertices.insert(he->End());
@@ -25,7 +25,7 @@ std::set<HEMeshTriats_V<Traits>*> TEdge<Traits>::AdjVertices() {
 }
 
 template <typename Traits>
-std::vector<HEMeshTriats_E<Traits>*> TEdge<Traits>::AdjEdges() {
+std::vector<HEMeshTraits_E<Traits>*> TEdge<Traits>::AdjEdges() {
   std::vector<E*> edges;
   for (auto he : OutHalfEdges())
     edges.push_back(he->Edge());
