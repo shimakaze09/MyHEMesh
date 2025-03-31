@@ -6,5 +6,4 @@ ADD_TARGET(
         "${PROJECT_SOURCE_DIR}/include/MyHEMesh"
         LIB
         ${CORE}
-        My::MyContainer_core
 )

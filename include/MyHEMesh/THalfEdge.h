@@ -73,7 +73,7 @@ class THalfEdge {
   void Init(H* next, H* pair, V* v, E* e, P* p) noexcept;
 
   // polygon == nullptr
-  bool IsBoundary() const noexcept { return !polygon; }
+  bool IsOnBoundary() const noexcept { return !polygon; }
 
   // [begin, end), if begin == end, return a loop
   static std::vector<H*> NextBetween(H* begin, H* end);

@@ -27,8 +27,8 @@ class TVertex {
   // halfedge == nullptr
   bool IsIsolated() const noexcept { return !halfEdge; }
 
-  // vertex is boundary == any adjacent polygon is boundary (nullptr)
-  bool IsBoundary() const noexcept;
+  // vertex is on boundary == any adjacent polygon is boundary (nullptr)
+  bool IsOnBoundary() const noexcept;
 
   // number of adjacent edges
   size_t Degree() const noexcept;
@@ -45,7 +45,8 @@ class TVertex {
   std::vector<V*> AdjVertices();
 
   // adjacent polygons : { halfedge.End() for halfedge in OutHalfEdges() }
-  // if IsBoundary(), result contains nullptr
+  // [WARNING]
+  // if IsOnBoundary(), result contains nullptr
   // use P::IsBoundary() to find it
   std::set<P*> AdjPolygons();
 
