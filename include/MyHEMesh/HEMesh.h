@@ -40,11 +40,11 @@ class HEMesh {
   const std::vector<H*>& HalfEdges() noexcept { return halfEdges.vec(); }
 
   /*
-   * ordered boundary == std::vector<H*>
-   * boundaries == std::vector<ordered boundary>
-   * there maybe several boundaries in a mesh
-   */
-  const std::vector<std::vector<H*>> Boundaries();
+		* ordered boundary == std::vector<H*>
+		* boundaries == std::vector<ordered boundary>
+		* there maybe several boundaries in a mesh
+		*/
+  std::vector<std::vector<H*>> Boundaries();
 
   size_t NumVertices() const noexcept { return vertices.size(); }
 
@@ -65,7 +65,7 @@ class HEMesh {
 
   size_t Index(P* p) const { return polygons.idx(p); }
 
-  const std::vector<size_t> Indices(P* p) const;
+  std::vector<size_t> Indices(P* p) const;
 
   bool IsValid() const;
   bool IsTriMesh() const;
@@ -81,23 +81,23 @@ class HEMesh {
   bool Init(const std::vector<size_t>& polygons, size_t sides);
   void Clear() noexcept;
   void Reserve(size_t n);
-  const std::vector<std::vector<size_t>> Export() const;
+  std::vector<std::vector<size_t>> Export() const;
 
   // -----------------
   //  basic mesh edit
   // -----------------
 
   template <typename... Args>
-  V* const AddVertex(Args&&... args) {
+  V* AddVertex(Args&&... args) {
     return New<V>(std::forward<Args>(args)...);
   }
 
   // e's halfedge is form v0 to v1
   template <typename... Args>
-  E* const AddEdge(V* v0, V* v1, Args&&... args);
+  E* AddEdge(V* v0, V* v1, Args&&... args);
   // polygon's halfedge is heLoop[0]
   template <typename... Args>
-  P* const AddPolygon(const std::vector<H*> heLoop, Args&&... args);
+  P* AddPolygon(const std::vector<H*>& heLoop, Args&&... args);
   void RemovePolygon(P* polygon);
   void RemoveEdge(E* e);
   void RemoveVertex(V* v);
@@ -112,25 +112,25 @@ class HEMesh {
   // edge's halfedge : v0=>v1
   // nweV's halfedge : newV => v1
   template <typename... Args>
-  V* const AddEdgeVertex(E* e, Args&&... args);
+  V* AddEdgeVertex(E* e, Args&&... args);
 
   // connect he0.origin and he1.origin in he0/he1.polygon
   // [require] he0.polygon == he1.polygon, he0.origin != he1.origin
   // [return] edge with halfedge form he0.origin to he1.origin
   template <typename... Args>
-  E* const ConnectVertex(H* he0, H* he1, Args&&... args);
+  E* ConnectVertex(H* he0, H* he1, Args&&... args);
 
   // counter-clock, remain e in container, won't break iteration
   bool FlipEdge(E* e);
 
   // delete e
   template <typename... Args>
-  V* const SplitEdge(E* e, Args&&... args);
+  V* SplitEdge(E* e, Args&&... args);
 
   bool IsCollapsable(E* e) const;
   // won't collapse in unsafe situation, return nullptr
   template <typename... Args>
-  V* const CollapseEdge(E* e, Args&&... args);
+  V* CollapseEdge(E* e, Args&&... args);
 
  private:
   template <typename T>
@@ -139,7 +139,7 @@ class HEMesh {
   friend struct MemVarOf;
   // new and insert
   template <typename T, typename... Args>
-  T* const New(Args&&... args);
+  T* New(Args&&... args);
 
   // clear and erase
   template <typename T>

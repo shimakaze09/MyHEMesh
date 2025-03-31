@@ -6,7 +6,7 @@
 
 namespace My {
 template <typename Traits>
-HEMeshTriats_H<Traits>* const THalfEdge<Traits>::Pre() noexcept {
+HEMeshTriats_H<Traits>* THalfEdge<Traits>::Pre() noexcept {
   auto he = this;
   auto next = he->Next();
   do {
@@ -27,8 +27,7 @@ void THalfEdge<Traits>::Init(H* next, H* pair, V* v, E* e, P* p) noexcept {
 }
 
 template <typename Traits>
-HEMeshTriats_H<Traits>* const THalfEdge<Traits>::FindFreeIncident(H* begin,
-                                                                  H* end) {
+HEMeshTriats_H<Traits>* THalfEdge<Traits>::FindFreeIncident(H* begin, H* end) {
   assert(begin->End() == end->End());
 
   for (auto he = begin; he != end; he = he->Next()->Pair()) {
@@ -62,8 +61,8 @@ bool THalfEdge<Traits>::MakeAdjacent(H* inHE, H* outHE) {
 }
 
 template <typename Traits>
-const std::vector<HEMeshTriats_H<Traits>*> THalfEdge<Traits>::NextBetween(
-    H* begin, H* end) {
+std::vector<HEMeshTriats_H<Traits>*> THalfEdge<Traits>::NextBetween(H* begin,
+                                                                    H* end) {
   std::vector<H*> hes;
   auto he = begin;
   do {
@@ -74,7 +73,7 @@ const std::vector<HEMeshTriats_H<Traits>*> THalfEdge<Traits>::NextBetween(
 }
 
 template <typename Traits>
-const std::vector<HEMeshTriats_H<Traits>*> THalfEdge<Traits>::RotateNextBetween(
+std::vector<HEMeshTriats_H<Traits>*> THalfEdge<Traits>::RotateNextBetween(
     H* begin, H* end) {
   std::vector<H*> hes;
   auto he = begin;
