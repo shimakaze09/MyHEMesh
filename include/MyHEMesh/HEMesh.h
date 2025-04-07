@@ -6,6 +6,7 @@
 
 #include "Empty.h"
 
+#include <MyContainer/Span.h>
 #include <MyContainer/Pool.h>
 #include "detail/random_set.h"
 
