@@ -23,8 +23,8 @@ class TLoopIteratorBase {
 
   constexpr TLoopIteratorBase() noexcept : data{nullptr}, is_begin{false} {}
 
-  constexpr bool operator==(const Impl& rhs) const noexcept {
-    return data == rhs.data && is_begin == rhs.is_begin;
+  friend constexpr bool operator==(const Impl& lhs, const Impl& rhs) noexcept {
+    return lhs.data == rhs.data && lhs.is_begin == rhs.is_begin;
   }
 
   value_type operator->() const noexcept { return Impl::ToValue(data); }

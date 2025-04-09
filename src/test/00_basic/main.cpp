@@ -3,7 +3,6 @@
 //
 
 #include <MyHEMesh/HEMesh.h>
-
 #include <array>
 #include <iostream>
 #include <string>
