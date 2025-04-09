@@ -15,7 +15,7 @@ namespace My {
 template <typename Traits>
 template <typename T, typename... Args>
 T* HEMesh<Traits>::New(Args&&... args) {
-  T* elem = MemVarOf<T>::pool(this).Request();
+  T* elem = MemVarOf<T>::allocator(this).allocate(1);
   new (elem) T(std::forward<Args>(args)...);
   MemVarOf<T>::set(this).insert(elem);
   return elem;
@@ -25,7 +25,7 @@ T* HEMesh<Traits>::New(Args&&... args) {
 template <typename Traits>
 template <typename T>
 void HEMesh<Traits>::Delete(T* elem) {
-  MemVarOf<T>::pool(this).Recycle(elem);
+  MemVarOf<T>::allocator(this).deallocate(elem, 1);
   MemVarOf<T>::set(this).erase(elem);
 }
 
@@ -88,30 +88,44 @@ HEMeshTraits_E<Traits>* HEMesh<Traits>::AddEdge(V* v0, V* v1, Args&&... args) {
 }
 
 template <typename Traits>
-template <typename... Args>
-HEMeshTraits_P<Traits>* HEMesh<Traits>::AddPolygon(
-    const std::vector<H*>& heLoop, Args&&... args) {
-  assert(!heLoop.empty() && "heLoop must be non-empty");
+template <std::ranges::range HalfEdgeLoop, typename... Args>
+HEMeshTraits_P<Traits>* HEMesh<Traits>::AddPolygon(const HalfEdgeLoop& heLoop,
+                                                   Args&&... args) {
+  assert(std::ranges::begin(heLoop) != std::ranges::end(heLoop) &&
+         "heLoop must be non-empty");
+  H* he0 = *std::ranges::begin(heLoop);
 #ifndef NDEBUG
-  for (size_t i = 0; i < heLoop.size(); i++) {
-    assert(heLoop[i] != nullptr);
-    assert(heLoop[i]->IsFree());
-    size_t next = (i + 1) % heLoop.size();
-    assert(heLoop[i]->End() == heLoop[next]->Origin());
+  {
+    H* preHE = nullptr;
+    for (auto* he : heLoop) {
+      assert(he && he->IsFree());
+      if (preHE)
+        assert(preHE->End() == he->Origin());
+      preHE = he;
+    }
+    assert(preHE->End() == he0->Origin());
   }
 #endif  // !NDEBUG
 
   // reorder link
-  for (size_t i = 0; i < heLoop.size(); i++) {
-    size_t next = (i + 1) % heLoop.size();
-    bool success = H::MakeAdjacent(heLoop[i], heLoop[next]);
+  {
+    H* preHE = nullptr;
+    for (auto* he : heLoop) {
+      if (preHE) {
+        bool success = H::MakeAdjacent(preHE, he);
+        assert(success &&
+               "the polygon would introduce a non - monifold condition");
+      }
+      preHE = he;
+    }
+    bool success = H::MakeAdjacent(preHE, he0);
     assert(success && "the polygon would introduce a non - monifold condition");
   }
 
   // link polygon and heLoop
   auto* polygon = New<P>(std::forward<Args>(args)...);
 
-  polygon->SetHalfEdge(heLoop[0]);
+  polygon->SetHalfEdge(he0);
   for (auto* he : heLoop)
     he->SetPolygon(polygon);
 
@@ -166,8 +180,14 @@ void HEMesh<Traits>::RemoveEdge(E* e) {
 template <typename Traits>
 void HEMesh<Traits>::RemoveVertex(V* v) {
   assert(v != nullptr);
-  for (auto* e : v->AdjEdges())
-    RemoveEdge(e);
+  auto view = v->OutHalfEdges();
+  auto iter = view.begin();
+  do {
+    auto cpy_iter = iter;
+    ++iter;
+
+    RemoveEdge(cpy_iter->Edge());
+  } while (iter != view.end());
   Delete<V>(v);
 }
 
@@ -244,52 +264,29 @@ std::vector<std::vector<size_t>> HEMesh<Traits>::Export() const {
 
 template <typename Traits>
 void HEMesh<Traits>::Clear() noexcept {
-  if constexpr (std::is_trivially_destructible_v<V>)
-    poolV.FastClear();
-  else {
-    for (auto* v : vertices.vec())
-      poolV.Recycle(v);
-  }
+  for (auto* v : vertices.vec())
+    allocatorV.deallocate(v, 1);
   vertices.clear();
 
-  if constexpr (std::is_trivially_destructible_v<H>)
-    poolHE.FastClear();
-  else {
-    for (auto* he : halfEdges.vec())
-      poolHE.Recycle(he);
-  }
+  for (auto* he : halfEdges.vec())
+    allocatorH.deallocate(he, 1);
   halfEdges.clear();
 
-  if constexpr (std::is_trivially_destructible_v<E>)
-    poolE.FastClear();
-  else {
-    for (auto* e : edges.vec())
-      poolE.Recycle(e);
-  }
+  for (auto* e : edges.vec())
+    allocatorE.deallocate(e, 1);
   edges.clear();
 
-  if constexpr (std::is_trivially_destructible_v<P>)
-    poolP.FastClear();
-  else {
-    for (auto* p : polygons.vec())
-      poolP.Recycle(p);
-  }
+  for (auto* p : polygons.vec())
+    allocatorP.deallocate(p, 1);
   polygons.clear();
 }
 
 template <typename Traits>
 void HEMesh<Traits>::Reserve(size_t n) {
   vertices.reserve(n);
-  poolV.Reserve(n);
-
   halfEdges.reserve(6 * n);
-  poolHE.Reserve(6 * n);
-
   edges.reserve(3 * n);
-  poolE.Reserve(3 * n);
-
   polygons.reserve(2 * n);
-  poolP.Reserve(2 * n);
 }
 
 template <typename Traits>
@@ -782,28 +779,25 @@ bool HEMesh<Traits>::IsCollapsable(E* e) const {
   auto* v0 = he01->Origin();
   auto* v1 = he01->End();
 
-  size_t p01D = he01->NextLoop().size();
-  size_t p10D = he10->NextLoop().size();
-
-  std::vector<V*> comVs;
-  auto v0AdjVs = v0->AdjVertices();
-  auto v1AdjVs = v1->AdjVertices();
-  sort(v0AdjVs.begin(), v0AdjVs.end());
-  sort(v1AdjVs.begin(), v1AdjVs.end());
-  std::set_intersection(
-      v0AdjVs.begin(), v0AdjVs.end(), v1AdjVs.begin(), v1AdjVs.end(),
-      std::insert_iterator<std::vector<V*>>(comVs, comVs.begin()));
-
-  size_t limit = 2;
-  if (p01D > 3)
-    limit -= 1;
-  if (p10D > 3)
-    limit -= 1;
-  if (comVs.size() > limit)
-    return false;
-
   if (v0->IsOnBoundary() && v1->IsOnBoundary() && !e->IsOnBoundary())
     return false;
+
+  size_t cnt = 2;
+  if (he01->PolygonDegree() > 3)
+    --cnt;
+  if (he10->PolygonDegree() > 3)
+    --cnt;
+
+  for (auto* he0 : v0->OutHalfEdges()) {
+    auto* he0end = he0->End();
+    for (auto* he1 : v1->OutHalfEdges()) {
+      if (he0end == he1->End()) {
+        if (cnt == 0)
+          return false;
+        --cnt;
+      }
+    }
+  }
 
   return true;
 }
@@ -819,11 +813,6 @@ HEMeshTraits_V<Traits>* HEMesh<Traits>::CollapseEdge(E* e, Args&&... args) {
   auto* v0 = he01->Origin();
   auto* v1 = he01->End();
 
-  auto* p01 = he01->Polygon();
-  auto* p10 = he10->Polygon();
-  size_t p01D = he01->NextLoop().size();
-  size_t p10D = he10->NextLoop().size();
-
   if (v0->IsOnBoundary() && v1->IsOnBoundary() && !e->IsOnBoundary())
     return nullptr;
 
@@ -836,6 +825,11 @@ HEMeshTraits_V<Traits>* HEMesh<Traits>::CollapseEdge(E* e, Args&&... args) {
     EraseVertex(v1);
     return v0;
   }
+
+  auto* p01 = he01->Polygon();
+  auto* p10 = he10->Polygon();
+  size_t p01D = he01->PolygonDegree();
+  size_t p10D = he10->PolygonDegree();
 
   // set v
   auto* v = New<V>(std::forward<Args>(args)...);

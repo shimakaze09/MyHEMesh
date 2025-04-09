@@ -6,9 +6,10 @@
 
 #include "Empty.h"
 
-#include <MyContainer/Span.h>
-#include <MyContainer/Pool.h>
 #include "detail/random_set.h"
+
+#include <memory_resource>
+#include <ranges>
 
 namespace My {
 // [ example ]
@@ -145,8 +146,8 @@ class HEMesh {
   template <typename... Args>
   E* AddEdge(V* v0, V* v1, Args&&... args);
   // polygon's halfedge is heLoop[0]
-  template <typename... Args>
-  P* AddPolygon(const std::vector<H*>& heLoop, Args&&... args);
+  template <std::ranges::range HalfEdgeLoop, typename... Args>
+  P* AddPolygon(const HalfEdgeLoop& heLoop, Args&&... args);
 
   void RemovePolygon(P* polygon);
   void RemoveEdge(E* e);
@@ -203,37 +204,46 @@ class HEMesh {
   random_set<E*> edges;
   random_set<P*> polygons;
 
-  Pool<H> poolHE;
-  Pool<V> poolV;
-  Pool<E> poolE;
-  Pool<P> poolP;
+  std::pmr::synchronized_pool_resource rsrc;
+  std::pmr::polymorphic_allocator<H> allocatorH;
+  std::pmr::polymorphic_allocator<V> allocatorV;
+  std::pmr::polymorphic_allocator<E> allocatorE;
+  std::pmr::polymorphic_allocator<P> allocatorP;
 
   // =============================
 
   template <>
   struct MemVarOf<H> {
-    static auto& pool(HEMesh* mesh) { return mesh->poolHE; }
+    static auto allocator(HEMesh* mesh) {
+      return std::pmr::polymorphic_allocator<H>{&mesh->rsrc};
+    }
 
     static auto& set(HEMesh* mesh) { return mesh->halfEdges; }
   };
 
   template <>
   struct MemVarOf<V> {
-    static auto& pool(HEMesh* mesh) { return mesh->poolV; }
+    static auto allocator(HEMesh* mesh) {
+      return std::pmr::polymorphic_allocator<V>{&mesh->rsrc};
+    }
 
     static auto& set(HEMesh* mesh) { return mesh->vertices; }
   };
 
   template <>
   struct MemVarOf<E> {
-    static auto& pool(HEMesh* mesh) { return mesh->poolE; }
+    static auto allocator(HEMesh* mesh) {
+      return std::pmr::polymorphic_allocator<E>{&mesh->rsrc};
+    }
 
     static auto& set(HEMesh* mesh) { return mesh->edges; }
   };
 
   template <>
   struct MemVarOf<P> {
-    static auto& pool(HEMesh* mesh) { return mesh->poolP; }
+    static auto allocator(HEMesh* mesh) {
+      return std::pmr::polymorphic_allocator<P>{&mesh->rsrc};
+    }
 
     static auto& set(HEMesh* mesh) { return mesh->polygons; }
   };

@@ -31,7 +31,7 @@ class TEdge {
 
   // clockwise
   // + [he.RotateNext, he.RotateNext.RotateNext, ..., he)
-  // + [he.next, he.next.RotateNext, ..., he.pair)
+  // + [he.pair, he.pair.RotateNext, ..., he.pair)
   std::vector<H*> AdjOutHalfEdges();
 
   // { halfedge.End() for halfedge in OutHalfEdges() }
