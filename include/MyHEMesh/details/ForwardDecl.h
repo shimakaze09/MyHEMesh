@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include "../HEMeshTraits.h"
+
+#include <ranges>
 #include <set>
 #include <type_traits>
 #include <vector>
 
 #include <cassert>
-
-#include "../HEMeshTraits.h"
 
 namespace My {
 template <typename V, typename E, typename P, typename H>
@@ -29,9 +30,13 @@ class HEMesh;
 
 template <bool IsConst, typename Traits>
 class HalfEdgeNextView;
-
 template <bool IsConst, typename Traits>
 class HalfEdgeRotateNextView;
+
+template <bool IsConst, typename Traits>
+class VertexAdjEdgeView;
+template <bool IsConst, typename Traits>
+class VertexAdjVertexView;
 
 template <typename E, typename P, typename H>
 class EmptyV;

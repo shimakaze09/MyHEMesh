@@ -4,138 +4,11 @@
 
 #pragma once
 
-#include "detail/ForwardDecl.h"
+#include "TLoopView.h"
 
 #include <concepts>
 
 namespace My {
-template <bool IsConst, typename Traits>
-class HalfEdgeNextView {
- public:
-  using H = HEMeshTraits_H<Traits>;
-  using Data = std::conditional_t<IsConst, const H*, H*>;
-
-  class Iterator {
-   public:
-    using value_type = Data;
-    using difference_type = std::ptrdiff_t;
-    using pointer = std::add_pointer_t<value_type>;
-    using reference = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
-    using iterator_category = std::forward_iterator_tag;
-
-    constexpr Iterator(value_type he, bool is_begin) noexcept
-        : he{he}, is_begin{is_begin} {}
-
-    constexpr Iterator() noexcept : he{nullptr}, is_begin{false} {}
-
-    constexpr bool operator==(const Iterator& rhs) const noexcept {
-      return he == rhs.he && is_begin == rhs.is_begin;
-    }
-
-    value_type operator->() const noexcept { return he; }
-
-    reference operator*() const noexcept { return he; }
-
-    Iterator& operator++() noexcept {
-      he = he->Next();
-      is_begin = false;
-      return *this;
-    }
-
-    Iterator operator++(int) noexcept {
-      Iterator rst = *this;
-      this->operator++();
-      return rst;
-    }
-
-   private:
-    value_type he;
-    bool is_begin;
-  };
-
-  constexpr HalfEdgeNextView(Data begin_halfedge, Data end_halfedge) noexcept
-      : begin_halfedge{begin_halfedge}, end_halfedge{end_halfedge} {
-    assert(begin_halfedge->Polygon() == end_halfedge->Polygon());
-  }
-
-  constexpr HalfEdgeNextView() noexcept
-      : begin_halfedge{nullptr}, end_halfedge{nullptr} {}
-
-  Iterator begin() const noexcept {
-    return begin_halfedge ? Iterator{begin_halfedge, true} : Iterator{};
-  }
-
-  Iterator end() const noexcept { return {end_halfedge, false}; }
-
- private:
-  Data begin_halfedge;
-  Data end_halfedge;
-};
-
-template <bool IsConst, typename Traits>
-class HalfEdgeRotateNextView {
- public:
-  using H = HEMeshTraits_H<Traits>;
-  using Data = std::conditional_t<IsConst, const H*, H*>;
-
-  class Iterator {
-   public:
-    using value_type = Data;
-    using difference_type = std::ptrdiff_t;
-    using pointer = std::add_pointer_t<value_type>;
-    using reference = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
-    using iterator_category = std::forward_iterator_tag;
-
-    constexpr Iterator(value_type he, bool is_begin) noexcept
-        : he{he}, is_begin{is_begin} {}
-
-    constexpr Iterator() noexcept : he{nullptr}, is_begin{false} {}
-
-    constexpr bool operator==(const Iterator& rhs) const noexcept {
-      return he == rhs.he && is_begin == rhs.is_begin;
-    }
-
-    value_type operator->() const noexcept { return he; }
-
-    reference operator*() const noexcept { return he; }
-
-    Iterator& operator++() noexcept {
-      he = he->RotateNext();
-      is_begin = false;
-      return *this;
-    }
-
-    Iterator operator++(int) noexcept {
-      Iterator rst = *this;
-      this->operator++();
-      return rst;
-    }
-
-   private:
-    value_type he;
-    bool is_begin;
-  };
-
-  constexpr HalfEdgeRotateNextView(Data begin_halfedge,
-                                   Data end_halfedge) noexcept
-      : begin_halfedge{begin_halfedge}, end_halfedge{end_halfedge} {
-    assert(begin_halfedge->Polygon() == end_halfedge->Polygon());
-  }
-
-  constexpr HalfEdgeRotateNextView() noexcept
-      : begin_halfedge{nullptr}, end_halfedge{nullptr} {}
-
-  Iterator begin() const noexcept {
-    return begin_halfedge ? Iterator{begin_halfedge, true} : Iterator{};
-  }
-
-  Iterator end() const noexcept { return {end_halfedge, false}; }
-
- private:
-  Data begin_halfedge;
-  Data end_halfedge;
-};
-
 template <typename Traits>
 class THalfEdge {
  public:
@@ -201,71 +74,67 @@ class THalfEdge {
   // p can be nullptr
   void Init(H* next, H* pair, V* v, E* e, P* p) noexcept;
 
+  void Reset() noexcept;
+
   // polygon == nullptr
   bool IsOnBoundary() const noexcept { return !polygon; }
 
   // [begin, end), begin == end <=> loop
-  static constexpr HalfEdgeNextView<false, Traits> NextBetween(H* begin,
-                                                               H* end) {
+  static HalfEdgeNextView<false, Traits> NextBetween(H* begin, H* end) {
     return {begin, end};
   }
 
   // [this, end), NextBetween(this, end);
-  constexpr HalfEdgeNextView<false, Traits> NextTo(H* end) {
+  HalfEdgeNextView<false, Traits> NextTo(H* end) {
     return NextBetween(This(), end);
   }
 
   // NextBetween(this, this), a loop from this to this
-  constexpr HalfEdgeNextView<false, Traits> NextLoop() {
-    return NextTo(This());
-  }
+  HalfEdgeNextView<false, Traits> NextLoop() { return NextTo(This()); }
 
   // [begin, end), begin == end <=> loop
-  static constexpr HalfEdgeNextView<true, Traits> NextBetween(const H* begin,
-                                                              const H* end) {
+  static HalfEdgeNextView<true, Traits> NextBetween(const H* begin,
+                                                    const H* end) {
     return {begin, end};
   }
 
   // [this, end), NextBetween(this, end);
-  constexpr HalfEdgeNextView<true, Traits> NextTo(const H* end) const {
+  HalfEdgeNextView<true, Traits> NextTo(const H* end) const {
     return NextBetween(This(), end);
   }
 
   // NextBetween(this, this), a loop from this to this
-  constexpr HalfEdgeNextView<true, Traits> NextLoop() const {
-    return NextTo(This());
-  }
+  HalfEdgeNextView<true, Traits> NextLoop() const { return NextTo(This()); }
 
   // [begin, end), begin == end <=> loop
-  static constexpr HalfEdgeRotateNextView<false, Traits> RotateNextBetween(
-      H* begin, H* end) {
+  static HalfEdgeRotateNextView<false, Traits> RotateNextBetween(H* begin,
+                                                                 H* end) {
     return {begin, end};
   }
 
   // [this, end), RotateNextBetween(this, end);
-  constexpr HalfEdgeRotateNextView<false, Traits> RotateNextTo(H* end) {
+  HalfEdgeRotateNextView<false, Traits> RotateNextTo(H* end) {
     return RotateNextBetween(This(), end);
   }
 
   // RotateNextBetween(this, this), a loop from this to this
-  constexpr HalfEdgeRotateNextView<false, Traits> RotateNextLoop() {
+  HalfEdgeRotateNextView<false, Traits> RotateNextLoop() {
     return RotateNextTo(This());
   }
 
   // [begin, end), begin == end <=> loop
-  static constexpr HalfEdgeRotateNextView<true, Traits> RotateNextBetween(
-      const H* begin, const H* end) {
+  static HalfEdgeRotateNextView<false, Traits> RotateNextBetween(const H* begin,
+                                                                 const H* end) {
     return {begin, end};
   }
 
   // [this, end), RotateNextBetween(this, end);
-  constexpr HalfEdgeRotateNextView<true, Traits> RotateNextTo(
-      const H* end) const {
+  HalfEdgeRotateNextView<false, Traits> RotateNextTo(const H* end) const {
     return RotateNextBetween(This(), end);
   }
 
   // RotateNextBetween(this, this), a loop from this to this
-  constexpr HalfEdgeRotateNextView<true, Traits> RotateNextLoop() const {
+  HalfEdgeRotateNextView<false, Traits> RotateNextLoop() const {
     return RotateNextTo(This());
   }
 
@@ -293,4 +162,4 @@ class THalfEdge {
 };
 }  // namespace My
 
-#include "detail/THalfEdge.inl"
+#include "details/THalfEdge.inl"
